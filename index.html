@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2b6cb0">
+<meta name="description" content="5品レシピの買い出し、当日の段取り、レシピ詳細を確認できるチェックリスト">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>5品レシピ・買い出し＆段取りリスト</title>
+<style>
+:root{--bg:#f4f7f9;--card-bg:rgba(255,255,255,.9);--primary:#2b6cb0;--primary-light:#ebf8ff;--text:#1a202c;--muted:#4a5568;--border:#e2e8f0;--done-bg:#f0fff4;--done-text:#718096;--shadow:0 8px 24px rgba(15,23,42,.06)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;background:linear-gradient(135deg,#eef2f6 0%,#f8fafc 50%,#e6fffa 100%);color:var(--text);line-height:1.6;min-height:100vh;padding-bottom:60px}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 16px;box-shadow:0 2px 10px #00000008}
+.header-inner,main{max-width:820px;margin:auto}.header-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1{font-size:1.05rem;margin:0;font-weight:700}.reset-btn{border:1px solid #cbd5e0;background:#fff;color:var(--muted);padding:5px 10px;border-radius:6px;font-size:.75rem;white-space:nowrap}
+.progress-wrap{display:flex;align-items:center;gap:10px;margin-top:8px}.progress-bar{flex:1;height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#3182ce,#38b2ac);transition:width .25s}.progress-text{font-size:.8rem;font-weight:700;color:var(--primary);min-width:90px;text-align:right}
+.tabs{display:flex;gap:6px;margin-top:10px;overflow-x:auto;padding-bottom:2px}.tab-btn{border:1px solid var(--border);background:#fff;color:var(--muted);padding:7px 14px;border-radius:999px;font-size:.85rem;font-weight:600;white-space:nowrap}.tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+main{margin:16px auto;padding:0 14px}.section-panel{display:none}.section-panel.active{display:block}
+.card{background:var(--card-bg);backdrop-filter:blur(10px);border:1px solid #ffffff;border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:12px}.card-title{font-size:1.05rem;font-weight:700;margin:0}.card-meta{font-size:.78rem;color:var(--muted);margin-top:2px}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700;background:var(--primary-light);color:var(--primary);white-space:nowrap}.badge-orange{background:#fffaf0;color:#c05621;border:1px solid #fbd38d}
+.checklist{list-style:none;margin:0;padding:0}.check-item{display:flex;align-items:flex-start;gap:12px;padding:10px;border-radius:10px;border-bottom:1px solid #e2e8f080;cursor:pointer}.check-item:last-child{border-bottom:0}.check-item.checked{background:var(--done-bg)}.check-item.checked .item-text{text-decoration:line-through;color:var(--done-text)}
+.check-item input{appearance:none;-webkit-appearance:none;width:22px;height:22px;min-width:22px;border:2px solid #cbd5e0;border-radius:6px;margin:1px 0 0;position:relative;background:#fff}
+.check-item input:checked{background:#38a169;border-color:#38a169}.check-item input:checked:after{content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid white;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.item-body{flex:1}.item-text{font-size:.94rem;font-weight:500;display:block}.item-sub{font-size:.78rem;color:var(--muted);display:block;margin-top:2px}
+.sub-heading{font-size:.85rem;font-weight:700;color:var(--primary);margin:14px 0 6px}.video-link{display:inline-block;font-size:.78rem;color:#c53030;text-decoration:none;font-weight:600;margin-top:4px}
+.note-box{background:#fffbeb;border-left:3px solid #ecc94b;padding:8px 12px;font-size:.82rem;color:#744210;border-radius:0 8px 8px 0;margin-bottom:12px}
+.install-hint{font-size:.75rem;color:var(--muted);text-align:center;margin:8px 0 0}
+@media(min-width:600px){.card{padding:18px}}
+</style>
+</head>
+<body>
+<header><div class="header-inner">
+<div class="header-top"><h1>🍳 5品レシピ・買い出し＆段取りリスト</h1><button class="reset-btn" onclick="resetAll()">全リセット</button></div>
+<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div><div class="progress-text" id="progressText">0 / 0 (0%)</div></div>
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('shopping',this)">🛒 買い出し</button>
+<button class="tab-btn" onclick="switchTab('prep',this)">⏱️ 当日の段取り</button>
+<button class="tab-btn" onclick="switchTab('recipes',this)">📖 5品レシピ詳細</button>
+</div></div></header>
+<main>
+<section id="tab-shopping" class="section-panel active">
+<div class="note-box">💡 複数レシピで重複する食材（片栗粉・鶏ガラスープの素・玉ねぎ・スライスチーズ・醤油・酒など）はまとめてチェックできます。チェック状態はブラウザに自動保存されます。</div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">🥬 野菜・きのこ</h2><div class="card-meta">5品で使用する生鮮野菜</div></div><span class="badge">青果</span></div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-1"><div class="item-body"><span class="item-text">しいたけ（適量）</span><span class="item-sub">使用：① しいたけ唐揚げ</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-2"><div class="item-body"><span class="item-text">じゃがいも（適量）</span><span class="item-sub">使用：③ スーパークリスピーポテト</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-3"><div class="item-body"><span class="item-text">玉ねぎ（1〜2個）</span><span class="item-sub">使用：④ 玉ねぎチーズ挟み焼き（1cm輪切り）／⑤ スタミナ丼（1/2個・約100g）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-4"><div class="item-body"><span class="item-text">大葉（1パック）</span><span class="item-sub">使用：④ 豚こま玉ねぎチーズ挟み焼き</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-5"><div class="item-body"><span class="item-text">ニンニク・生姜（チューブ可）</span><span class="item-sub">使用：① しいたけ唐揚げ／⑤ 豚こまスタミナ丼</span></div></li>
+</ul></div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">🥩 肉・豆腐・乳製品・卵</h2><div class="card-meta">メイン食材・冷蔵品</div></div><span class="badge">冷蔵</span></div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-6"><div class="item-body"><span class="item-text">豚こま切れ肉（約350〜400g目安）</span><span class="item-sub">使用：④ 玉ねぎチーズ挟み焼き（適量）／⑤ スタミナ丼（2人分で200g）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-7"><div class="item-body"><span class="item-text">木綿豆腐（130g×3個パック）</span><span class="item-sub">使用：② 闇つき豆腐チーズ（水切り不要・崩れにくい木綿を使用）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-8"><div class="item-body"><span class="item-text">とろけるスライスチーズ（1パック）</span><span class="item-sub">使用：② 闇つき豆腐チーズ（2枚）／④ 玉ねぎチーズ挟み焼き（適量）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-9"><div class="item-body"><span class="item-text">ピザ用チーズ（モッツァレラ入り推奨）</span><span class="item-sub">使用：② 闇つき豆腐チーズ</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-10"><div class="item-body"><span class="item-text">卵（1個〜）</span><span class="item-sub">使用：⑤ 豚こまスタミナ丼（仕上げトッピング用）</span></div></li>
+</ul></div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">🧂 粉類・調味料・その他</h2><div class="card-meta">自宅のストック確認用</div></div><span class="badge badge-orange">ストック確認</span></div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-11"><div class="item-body"><span class="item-text">片栗粉（たっぷり使用）</span><span class="item-sub">使用：①・②・④・⑤（⑤だけで大さじ3使用）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-12"><div class="item-body"><span class="item-text">鶏ガラスープの素</span><span class="item-sub">使用：① しいたけ唐揚げ／② 闇つき豆腐チーズ</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-13"><div class="item-body"><span class="item-text">コンソメ・重曹</span><span class="item-sub">使用：③ スーパークリスピーポテト（茹で汁用）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-14"><div class="item-body"><span class="item-text">基本調味料（醤油・酒・みりん・砂糖・味噌）</span><span class="item-sub">使用：①（醤油・みりん・酒・砂糖）／⑤（醤油・酒・味噌）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-15"><div class="item-body"><span class="item-text">オイスターソース</span><span class="item-sub">使用：① しいたけ唐揚げ</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-16"><div class="item-body"><span class="item-text">ケチャップ・マヨネーズ・レモン汁・チリパウダー</span><span class="item-sub">使用：③ スーパークリスピーポテトの特製ソース用</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="shop-17"><div class="item-body"><span class="item-text">揚げ油・塩・ブラックペッパー・お米</span><span class="item-sub">使用：揚げ焼き油（①・③）／仕上げ（③）／丼ごはん（⑤）</span></div></li>
+</ul></div></section>
+<section id="tab-prep" class="section-panel">
+<div class="note-box">⏱️ 洗い物と油汚れを最小限にしつつ、揚げ物・焼き物を熱々で揃える効率順のタイムラインです。</div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">Phase 1：下ごしらえ（火を使う前に一気に行う）</h2><div class="card-meta">所要目安：15〜20分</div></div><span class="badge">STEP 1</span></div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-1"><div class="item-body"><span class="item-text">【③ ポテト】じゃがいもの皮をむき一口大に切り、コンソメ＋重曹入りの湯で茹で始める</span><span class="item-sub">茹で上がったら湯を切り2分乾かし、鍋を振って表面をボロボロにしてザルで冷ましておく</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-2"><div class="item-body"><span class="item-text">【① しいたけ】軸の硬い先端を落とし、傘を半分に切ってポリ袋のタレに漬け込む</span><span class="item-sub">醤油・みりん・酒・オイスターソース・砂糖・鶏ガラ・ニンニク・生姜を袋で混ぜてなじませる</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-3"><div class="item-body"><span class="item-text">【④・⑤ 玉ねぎ＆豚こま】玉ねぎをカットし、豚こま肉にそれぞれ下味を揉み込む</span><span class="item-sub">④用は1cm輪切り＋豚こま下味／⑤用は玉ねぎ1/2個＋豚こま200g（醤油小1・酒大1・片栗粉大3）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-4"><div class="item-body"><span class="item-text">【④ 成形】玉ねぎ（片面に片栗粉）で大葉・スライスチーズ・下味豚こまを挟む</span><span class="item-sub">片栗粉の面を内側にして挟み、焼くだけの状態にする</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-5"><div class="item-body"><span class="item-text">【② 豆腐】木綿豆腐の水分を拭き取り、スライスチーズを挟んで下味＆片栗粉をまぶす</span><span class="item-sub">1/4厚さをさらに横半分に切りチーズを挟む → 鶏ガラ → 片栗粉を全面にコーティング</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-6"><div class="item-body"><span class="item-text">【③・④・⑤ 合わせ調味料】各種タレ・ソースを小鉢で混ぜておく</span><span class="item-sub">③ディップソース／④絡めダレ／⑤味噌ダレ（味噌小2・醤油大1・酒大1）</span></div></li>
+</ul></div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">Phase 2：加熱・仕上げ（フライパン・揚げ鍋の順）</h2><div class="card-meta">所要目安：15〜20分</div></div><span class="badge badge-orange">STEP 2</span></div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-7"><div class="item-body"><span class="item-text">【④ 玉ねぎチーズ挟み焼き】蓋をして中火4分 → 裏返して弱火5分蒸し焼き＋タレ絡め</span><span class="item-sub">じっくり蒸し焼きにしている間に隣のコンロで揚げ物や豆腐を進める</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-8"><div class="item-body"><span class="item-text">【② 闇つき豆腐チーズ】卵焼き器にピザ用チーズを薄く敷き、豆腐サンドを両面こんがり焼く</span><span class="item-sub">表面こんがり・裏面はチーズを足してパリトロに仕上げる</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-9"><div class="item-body"><span class="item-text">【⑤ 豚こまスタミナ丼】フライパンで豚こまと玉ねぎを炒め、味噌ダレを絡めて丼に盛る</span><span class="item-sub">仕上げに卵をトッピング</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="prep-10"><div class="item-body"><span class="item-text">【① しいたけ → ③ ポテトの順で揚げる】揚げたてを食卓へ！</span><span class="item-sub">①片栗粉をまぶして約3分（後半空気にあてる）→③冷ましたポテトをきつね色に揚げて塩・黒胡椒</span></div></li>
+</ul></div></section>
+<section id="tab-recipes" class="section-panel">
+<div class="card"><div class="card-header"><div><h2 class="card-title">① 【10分で簡単】しいたけ唐揚げ</h2><div class="card-meta">料理研究家ゆかりのおうちで簡単レシピ</div><a class="video-link" href="https://m.youtube.com/watch?v=LjZfbvf-v64" target="_blank" rel="noopener">▶ YouTube動画を開く</a></div><span class="badge">揚げ物</span></div>
+<div class="sub-heading">📌 材料・分量</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r1-m1"><div class="item-body"><span class="item-text">しいたけ（適量）</span><span class="item-sub">軸を切り落とし傘は半分に切る。軸は硬い先端のみ切り落とす</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r1-m2"><div class="item-body"><span class="item-text">ポリ袋調味料：醤油・みりん・酒・オイスターソース・砂糖・鶏ガラスープの素・おろしニンニク・おろし生姜</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r1-m3"><div class="item-body"><span class="item-text">片栗粉・揚げ油（各適量）</span></div></li></ul>
+<div class="sub-heading">🍳 手順</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r1-s1"><div class="item-body"><span class="item-text">1. 軸の硬い先端を切り落とし、傘を半分に切る。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r1-s2"><div class="item-body"><span class="item-text">2. ポリ袋に調味料をすべて入れてよく混ぜ、しいたけ（傘・軸）を入れてシャカシャカ振りなじませる。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r1-s3"><div class="item-body"><span class="item-text">3. 片栗粉をまぶし、油で約3分揚げる（1分で裏返し、2分経過後から空気にあてながら揚げるとカリッと仕上がる）。</span></div></li></ul></div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">② 闇つき豆腐チーズ（ミルフィーユサンド）</h2><div class="card-meta">飲食店独立学校 / こうせい校長</div><a class="video-link" href="https://m.youtube.com/watch?v=ApK9GsYp8Q8" target="_blank" rel="noopener">▶ YouTube動画を開く</a></div><span class="badge">焼き物</span></div>
+<div class="sub-heading">📌 材料・分量</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r2-m1"><div class="item-body"><span class="item-text">木綿豆腐：130g×3個パック（水切り不要）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r2-m2"><div class="item-body"><span class="item-text">とろけるスライスチーズ：2枚</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r2-m3"><div class="item-body"><span class="item-text">鶏ガラスープの素・片栗粉・ピザ用チーズ（各適量）</span></div></li></ul>
+<div class="sub-heading">🍳 手順</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r2-s1"><div class="item-body"><span class="item-text">1. 豆腐の余分な水気を拭き取り、1/4の厚さにカットしてからさらに横半分に切る。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r2-s2"><div class="item-body"><span class="item-text">2. 豆腐の大きさに切ったスライスチーズを挟み、表面に鶏ガラスープの素→片栗粉の順にしっかりまぶす。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r2-s3"><div class="item-body"><span class="item-text">3. 卵焼き器にピザ用チーズを薄く均一に敷き、豆腐を間隔をあけて並べて弱火〜中火でこんがり焼く。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r2-s4"><div class="item-body"><span class="item-text">4. 器を使ってひっくり返し、反対面にも少なめのチーズ（余ったスライスチーズ等）を敷いてじっくり焼く。</span></div></li></ul></div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">③ スーパークリスピーポテト</h2><div class="card-meta">ポテトのタカタク🥔</div><a class="video-link" href="https://m.youtube.com/watch?v=MCZOjbwNw9E" target="_blank" rel="noopener">▶ YouTube動画を開く</a></div><span class="badge">揚げ焼き</span></div>
+<div class="sub-heading">📌 材料・分量</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r3-m1"><div class="item-body"><span class="item-text">じゃがいも（適量・皮をむき一口大）／茹で汁（水・コンソメ・重曹）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r3-m2"><div class="item-body"><span class="item-text">ソース：ケチャップ・マヨネーズ・レモン汁・チリパウダー（多め推奨）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r3-m3"><div class="item-body"><span class="item-text">仕上げ：塩・ブラックペッパー・揚げ油</span></div></li></ul>
+<div class="sub-heading">🍳 手順</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r3-s1"><div class="item-body"><span class="item-text">1. 水・コンソメ・重曹を沸騰させ、一口大のじゃがいもを「周りが崩れ出し少し硬い」くらいまで茹でる。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r3-s2"><div class="item-body"><span class="item-text">2. 湯を切って2分乾かし、鍋に戻して思いっきり振って表面をボロボロにし、ザルに広げて冷ます。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r3-s3"><div class="item-body"><span class="item-text">3. ソース材料を混ぜる。フライパンに油を熱してポテトを中火で転がしながらこんがりきつね色に揚げ焼きする。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r3-s4"><div class="item-body"><span class="item-text">4. 油を切り、熱いうちに塩・ブラックペッパーをまぶしてソースを添える。</span></div></li></ul></div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">④ 豚こまがジューシーな玉ねぎチーズ挟み焼き</h2><div class="card-meta">簡単レシピ 東京OLむむちゃん</div><a class="video-link" href="https://m.youtube.com/watch?v=jc0wvkIaeI4" target="_blank" rel="noopener">▶ YouTube動画を開く</a></div><span class="badge">蒸し焼き</span></div>
+<div class="sub-heading">📌 材料・分量</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r4-m1"><div class="item-body"><span class="item-text">玉ねぎ（1cm厚さの輪切り）・豚こま切れ肉（下味を揉み込む）</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r4-m2"><div class="item-body"><span class="item-text">大葉・スライスチーズ・片栗粉（玉ねぎの片面用）・合わせダレ</span></div></li></ul>
+<div class="sub-heading">🍳 手順</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r4-s1"><div class="item-body"><span class="item-text">1. 玉ねぎの片面に片栗粉をまぶし、大葉・スライスチーズ・下味豚こまを乗せ、もう1枚の玉ねぎ（片栗粉面を内側）で挟む。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r4-s2"><div class="item-body"><span class="item-text">2. 油をひいたフライパンに並べ、蓋をして中火で4分蒸し焼きにする。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r4-s3"><div class="item-body"><span class="item-text">3. 裏返して蓋をし、弱火でさらに5分火を通す。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r4-s4"><div class="item-body"><span class="item-text">4. タレを加え、スプーンで上からかけながら全体に照りが出るまで絡める。</span></div></li></ul></div>
+<div class="card"><div class="card-header"><div><h2 class="card-title">⑤ 豚こまと玉ねぎのスタミナ丼</h2><div class="card-meta">ポテヒロの楽メシ（2人分）</div><a class="video-link" href="https://m.youtube.com/watch?v=0orL76mmcgA" target="_blank" rel="noopener">▶ YouTube動画を開く</a></div><span class="badge">丼もの</span></div>
+<div class="sub-heading">📌 材料・分量（2人分）</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r5-m1"><div class="item-body"><span class="item-text">豚こま肉：200g／玉ねぎ：1/2個（約100g）／卵：1個</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r5-m2"><div class="item-body"><span class="item-text">肉の下味：醤油 小さじ1／酒 大さじ1／片栗粉 大さじ3</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r5-m3"><div class="item-body"><span class="item-text">タレ：味噌 小さじ2／醤油 大さじ1／酒 大さじ1（※お好みでニンニク・生姜）</span></div></li></ul>
+<div class="sub-heading">🍳 手順</div><ul class="checklist">
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r5-s1"><div class="item-body"><span class="item-text">1. 玉ねぎを切り、豚こま肉に下味（醤油小1・酒大1・片栗粉大3）を揉み込む。タレ材料を混ぜておく。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r5-s2"><div class="item-body"><span class="item-text">2. フライパンに油を熱し、豚こま肉と玉ねぎを炒め合わせて火を通す。</span></div></li>
+<li class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" data-id="r5-s3"><div class="item-body"><span class="item-text">3. タレを回し入れて全体に絡め、ごはんの上に盛り付けて卵をトッピングする。</span></div></li></ul></div>
+</section>
+<p class="install-hint">チェック状態はこの端末・ブラウザに保存されます。ホーム画面に追加するとアプリのように起動できます。</p>
+</main>
+<script>
+const STORAGE_KEY='recipe_checklist_state_v1';
+function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{}}catch(e){return {}}}
+function saveState(state){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){}}
+function updateProgress(){const boxes=document.querySelectorAll('input[type="checkbox"]');const total=boxes.length;let checked=0;boxes.forEach(cb=>{if(cb.checked)checked++});const pct=total?Math.round(checked/total*100):0;document.getElementById('progressFill').style.width=pct+'%';document.getElementById('progressText').textContent=`${checked} / ${total} (${pct}%)`}
+function toggleCheck(li,event){const cb=li.querySelector('input[type="checkbox"]');if(event.target!==cb)cb.checked=!cb.checked;li.classList.toggle('checked',cb.checked);const state=loadState();state[cb.dataset.id]=cb.checked;saveState(state);updateProgress()}
+function switchTab(name,btn){document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+function resetAll(){if(!confirm('すべてのチェックをリセットしますか？'))return;localStorage.removeItem(STORAGE_KEY);document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{cb.checked=false;cb.closest('.check-item').classList.remove('checked')});updateProgress()}
+window.addEventListener('DOMContentLoaded',()=>{const state=loadState();document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{if(state[cb.dataset.id]){cb.checked=true;cb.closest('.check-item').classList.add('checked')}});updateProgress()});
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(err=>console.log('SW registration failed',err)))}
+</script>
+</body>
+</html>
