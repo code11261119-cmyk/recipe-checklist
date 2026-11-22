@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第2弾・6品レシピ＆段取り</title><style>body{font-family:sans-serif;background:#f4f7f9;color:#1a202c;margin:0;padding:12px 12px 60px}header{position:sticky;top:0;background:#fff;padding:10px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:12px;z-index:10}.bar{height:8px;background:#e2e8f0;border-radius:9px;overflow:hidden;margin:6px 0}.fill{height:100%;width:0%;background:#3182ce;transition:.2s}.tabs{display:flex;gap:6px}.tab{flex:1;padding:8px;border:1px solid #cbd5e0;background:#fff;border-radius:8px;font-weight:bold;font-size:13px}.tab.act{background:#2b6cb0;color:#fff;border-color:#2b6cb0}.panel{display:none}.panel.act{display:block}.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.05)}h2{font-size:15px;margin:0 0 8px;border-bottom:1px solid #edf2f7;padding-bottom:6px;color:#2b6cb0}label{display:flex;align-items:flex-start;gap:10px;padding:8px 4px;border-bottom:1px solid #f7fafc;font-size:14px}input{width:20px;height:20px;margin-top:2px;flex-shrink:0}.done{text-decoration:line-through;color:#a0aec0}small{display:block;color:#718096;font-size:12px}a{color:#c53030;font-size:12px;font-weight:bold;text-decoration:none}</style></head><body><header><div style="display:flex;justify-content:space-between;align-items:center"><b>🍳 第2弾・6品レシピ＆段取り</b><button onclick="rst()" style="font-size:11px;padding:4px 8px">リセット</button></div><div class="bar"><div class="fill" id="fl"></div></div><div id="pt" style="font-size:12px;text-align:right;color:#2b6cb0;font-weight:bold">0/0</div><div class="tabs"><button class="tab act" onclick="sw('s',this)">🛒買い出し</button><button class="tab" onclick="sw('p',this)">⏱段取り</button><button class="tab" onclick="sw('r',this)">📖レシピ</button></div></header>
+<div id="s" class="panel act">
+<div class="card"><h2>🥩 肉・魚介</h2>
+<label><input type="checkbox" id="s1"><span>鶏もも肉（2枚）<small>①鶏のサクサク揚げ(1枚) ／ ④ネギ塩パエリア(1枚)</small></span></label>
+<label><input type="checkbox" id="s2"><span>鶏むね肉（250〜300g）<small>②鶏むねと豆腐のゴロゴロつくね(270g)</small></span></label>
+<label><input type="checkbox" id="s3"><span>豚ひき肉（200g）<small>⑥チーたまカレーそぼろご飯</small></span></label>
+<label><input type="checkbox" id="s4"><span>生鮭切り身（2切れ）<small>③きのこたっぷり鮭の味噌マヨ焼き</small></span></label></div>
+<div class="card"><h2>🥬 野菜・きのこ・柑橘</h2>
+<label><input type="checkbox" id="s5"><span>舞茸（1パック）<small>②つくね(1/2パック) ／ ③鮭の味噌マヨ焼き(1/2パック)</small></span></label>
+<label><input type="checkbox" id="s6"><span>えのき（1/2パック）<small>③鮭の味噌マヨ焼き</small></span></label>
+<label><input type="checkbox" id="s7"><span>大葉（5〜10枚）<small>②ゴロゴロつくね</small></span></label>
+<label><input type="checkbox" id="s8"><span>長ネギ（1本）＋小ネギ（適量）<small>④パエリア(長ネギ1本・小ネギ) ／ ⑤担々麺(小ネギ)</small></span></label>
+<label><input type="checkbox" id="s9"><span>かぼす（またはレモン・スライス用）<small>④ネギ塩パエリア</small></span></label></div>
+<div class="card"><h2>🧀 卵・チーズ・豆腐・麺</h2>
+<label><input type="checkbox" id="s10"><span>卵（4〜5個）<small>⑤担々麺(卵黄1個) ／ ⑥チーたまカレーそぼろ(3〜4個)</small></span></label>
+<label><input type="checkbox" id="s11"><span>ピザ用チーズ（80g）<small>③鮭味噌マヨ(25g×2) ／ ⑥チーたまカレーそぼろ(30g)</small></span></label>
+<label><input type="checkbox" id="s12"><span>木綿豆腐（約150〜160g・半丁）<small>②ゴロゴロつくね</small></span></label>
+<label><input type="checkbox" id="s13"><span>焼きそば麺（1玉）<small>⑤5分で完成！濃厚担々麺</small></span></label>
+<label><input type="checkbox" id="s14"><span>バター（20g＋仕上げ用）<small>④ネギ塩パエリア</small></span></label></div>
+<div class="card"><h2>🧂 粉類・調味料・その他ストック</h2>
+<label><input type="checkbox" id="s15"><span>片栗粉・小麦粉・お米<small>①片栗粉＋小麦粉 ／ ②片栗粉大4 ／ ④米2合 ／ ⑥ごはん</small></span></label>
+<label><input type="checkbox" id="s16"><span>塩昆布・白すりごま・いりごま<small>②塩昆布2つまみ ／ ⑤すりごま大1 ／ ④⑤ごま</small></span></label>
+<label><input type="checkbox" id="s17"><span>カレー粉・ウスターソース・ケチャップ<small>⑥カレー粉小2・ウスター大1・ケチャップ大3</small></span></label>
+<label><input type="checkbox" id="s18"><span>味噌・マヨネーズ・めんつゆ・みりん・醤油・酒・砂糖<small>①③④⑤⑥で使用</small></span></label>
+<label><input type="checkbox" id="s19"><span>昆布だし(顆粒可)・にんにく(チューブ/パウダー)・ラー油・ごま油・揚げ油・塩・胡椒・パセリ・粉チーズ<small>④⑤⑥で使用</small></span></label></div></div>
+<div id="p" class="panel">
+<div class="card"><h2>STEP 1：下ごしらえ（加熱前）</h2>
+<label><input type="checkbox" id="p1"><span>【④パエリア】米2合を研いで浸水させ、水気を切っておく。長ネギ1本はみじん切りにする</span></label>
+<label><input type="checkbox" id="p2"><span>【③鮭ホイル】鮭2切れを室温に戻し、舞茸・えのき(各1/2パック)を割く。味噌大1/2＋みりん大1を混ぜる</span></label>
+<label><input type="checkbox" id="p3"><span>【①鶏サクサク揚げ】鶏もも1枚のドリップを拭き、軟骨等をハサミで除き醤油大1を揉み込み皮を伸ばす</span></label>
+<label><input type="checkbox" id="p4"><span>【②ゴロゴロつくね】鶏むね270gを1cm角に切る。ポリ袋に鶏むね・木綿豆腐150g・舞茸1/2パック・大葉5〜10枚・塩昆布2つまみ・片栗粉大4を入れ揉む</span></label>
+<label><input type="checkbox" id="p5"><span>【⑥チーたまカレーそぼろ】ボウルに卵3〜4個・ピザ用チーズ30g・塩胡椒を混ぜる。別器で砂糖・ウスターソース・酒各大1・ケチャップ大3・醤油大1/2・カレー粉小2・にんにく2cmを混ぜる</span></label></div>
+<div class="card"><h2>STEP 2：加熱・仕上げ</h2>
+<label><input type="checkbox" id="p6"><span>【④パエリア(約26分)】バター20gで鶏もも1枚に焼き色→ネギと米2合を炒め、水400ml・昆布だし小2・塩小1.5・にんにくパウダー小1を加え沸騰後弱火15分→蒸らし10分→かぼす・小ネギ・ごま・追いバターを乗せ強火1分でおこげ</span></label>
+<label><input type="checkbox" id="p7"><span>【③鮭の味噌マヨ焼き(約13分)】アルミホイル器にきのこ・鮭・味噌ダレ・チーズ各25g・マヨ各大1/2を乗せトースター200℃で13分〜焼く</span></label>
+<label><input type="checkbox" id="p8"><span>【①鶏のサクサク揚げ】鶏肉に片栗粉＋小麦粉をまぶし、170℃油で皮目から揚げ焼き(中火165℃キープ→油を回しかけながら火を通す)</span></label>
+<label><input type="checkbox" id="p9"><span>【②ゴロゴロつくね】ごま油を熱したフライパンでタネを小さくまとめて両面カリッと焼く</span></label>
+<label><input type="checkbox" id="p10"><span>【⑥チーたまカレーそぼろ(5分)】先に皿にごはんを盛る→卵液を半熟に焼いてごはんにかける→同じフライパンで豚ひき肉200gを炒め合わせ調味料を煮絡め、卵の上に乗せて完成</span></label>
+<label><input type="checkbox" id="p11"><span>【⑤濃厚担々麺(5分)】丼にすりごま大1・マヨ大1・砂糖小2・味噌小2・めんつゆ小2を混ぜ熱湯200mlで溶かす→600W2分加熱した焼きそば麺を絡め卵黄・小ネギ・ごま・ラー油を乗せる</span></label></div></div>
+<div id="r" class="panel">
+<div class="card"><h2>① 鶏のサクサク揚げ <a href="https://m.youtube.com/watch?v=AvQQo7m-fyM" target="_blank">▶動画</a></h2>
+<label><input type="checkbox" id="r1"><span>材料：鶏もも1枚／醤油大さじ1／片栗粉・小麦粉（各適量）／揚げ焼き油</span></label>
+<label><input type="checkbox" id="r2"><span>手順：ドリップを拭き切り開かず醤油大1を揉み込む→片栗粉＋小麦粉をまぶし皮を伸ばす→170℃油に皮目から入れ165℃前後で揚げ焼きし、油を回しかけながら火を通す</span></label></div>
+<div class="card"><h2>② 鶏むねと豆腐のゴロゴロつくね <a href="https://m.youtube.com/watch?v=COClq4UzUMc" target="_blank">▶動画</a></h2>
+<label><input type="checkbox" id="r3"><span>材料：鶏むね270g(皮除き1cm角)／木綿豆腐150g／舞茸1/2パック／大葉5〜10枚／塩昆布2つまみ(又は鶏ガラ小1)／片栗粉大さじ4／ごま油</span></label>
+<label><input type="checkbox" id="r4"><span>手順：材料すべてをポリ袋に入れてよく揉み混ぜる→ごま油をひいたフライパンで小さくまとめて両面カリッと焼く</span></label></div>
+<div class="card"><h2>③ きのこたっぷり鮭の味噌マヨ焼き <a href="https://m.youtube.com/watch?v=IjBaTisPAN4" target="_blank">▶動画</a></h2>
+<label><input type="checkbox" id="r5"><span>材料：生鮭2切れ／舞茸1/2パック／えのき1/2パック／味噌大さじ1/2・みりん大さじ1／ピザ用チーズ25g×2／マヨネーズ大さじ1/2×2</span></label>
+<label><input type="checkbox" id="r6"><span>手順：アルミホイルを器状に折り、割いたきのこ・鮭を乗せ混ぜた味噌ダレを塗る→チーズとマヨをたっぷりかけトースター200℃で13分〜こんがり焼く</span></label></div>
+<div class="card"><h2>④ 鬼リピ飯！ネギ塩パエリア <a href="https://m.youtube.com/watch?v=2ghHFHUHBVs" target="_blank">▶動画</a></h2>
+<label><input type="checkbox" id="r7"><span>材料：鶏もも1枚／バター20g＋追いバター／長ネギ1本(みじん切り)／浸水後水切り米2合／水400ml／昆布だし小2(顆粒小1)／塩小1.5／にんにくパウダー小1／かぼす・小ネギ・ごま</span></label>
+<label><input type="checkbox" id="r8"><span>手順：バターで鶏肉に焼き色→ネギと米を軽く炒め水と調味料を入れ沸騰後蓋をし弱火15分→火を止め10分蒸らす→かぼす・小ネギ・ごま・追いバターを乗せ強火1分でおこげを作る</span></label></div>
+<div class="card"><h2>⑤ 5分で完成！濃厚担々麺 <a href="https://m.youtube.com/watch?v=n9pOy89PHQg" target="_blank">▶動画</a></h2>
+<label><input type="checkbox" id="r9"><span>材料：焼きそば麺1玉／すりごま大さじ1／マヨネーズ大さじ1／砂糖小さじ2／味噌小さじ2／めんつゆ小さじ2／熱湯200ml／卵黄1個・小ネギ・すりごま・ラー油</span></label>
+<label><input type="checkbox" id="r10"><span>手順：丼に調味料を混ぜ熱湯200mlを少しずつ注いでスープを作る→袋のまま600Wで2分加熱した焼きそば麺を入れて絡め、卵黄・小ネギ・ごま・ラー油を乗せる</span></label></div>
+<div class="card"><h2>⑥ チーたまカレーそぼろご飯 <a href="https://m.youtube.com/shorts/CxZ8uvez2hI" target="_blank">▶動画</a></h2>
+<label><input type="checkbox" id="r11"><span>材料：豚ひき肉200g／卵3〜4個・ピザ用チーズ30g・塩胡椒／合わせ調味料(砂糖・ウスターソース・酒各大さじ1／ケチャップ大さじ3／醤油大さじ1/2／カレー粉小さじ2／にんにくチューブ2cm)／ごはん・(お好みで粉チーズ・パセリ)</span></label>
+<label><input type="checkbox" id="r12"><span>手順：先にごはんを皿に盛る→混ぜた卵液を半熟状に焼きごはんにかける→同じフライパンで豚ひき肉200gを炒め、合わせ調味料を加えてしっかり煮絡め卵の上に乗せる</span></label></div></div>
+<script>const K='rc_batch2_v2';let st=JSON.parse(localStorage.getItem(K)||'{}');function up(){let c=document.querySelectorAll('input'),n=0;c.forEach(x=>{x.checked=!!st[x.id];x.nextElementSibling.classList.toggle('done',x.checked);if(x.checked)n++});document.getElementById('fl').style.width=(n/c.length*100)+'%';document.getElementById('pt').textContent=n+'/'+c.length}document.querySelectorAll('input').forEach(x=>x.onchange=()=>{st[x.id]=x.checked;localStorage.setItem(K,JSON.stringify(st));up()});function sw(id,b){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('act'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));document.getElementById(id).classList.add('act');b.classList.add('act')}function rst(){if(confirm('リセットしますか？')){st={};localStorage.removeItem(K);up()}}up();</script></body></html>
