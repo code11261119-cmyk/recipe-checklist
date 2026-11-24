@@ -1,59 +1,778 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第2弾・6品レシピ＆段取り</title><style>body{font-family:sans-serif;background:#f4f7f9;color:#1a202c;margin:0;padding:12px 12px 60px}header{position:sticky;top:0;background:#fff;padding:10px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:12px;z-index:10}.bar{height:8px;background:#e2e8f0;border-radius:9px;overflow:hidden;margin:6px 0}.fill{height:100%;width:0%;background:#3182ce;transition:.2s}.tabs{display:flex;gap:6px}.tab{flex:1;padding:8px;border:1px solid #cbd5e0;background:#fff;border-radius:8px;font-weight:bold;font-size:13px}.tab.act{background:#2b6cb0;color:#fff;border-color:#2b6cb0}.panel{display:none}.panel.act{display:block}.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.05)}h2{font-size:15px;margin:0 0 8px;border-bottom:1px solid #edf2f7;padding-bottom:6px;color:#2b6cb0}label{display:flex;align-items:flex-start;gap:10px;padding:8px 4px;border-bottom:1px solid #f7fafc;font-size:14px}input{width:20px;height:20px;margin-top:2px;flex-shrink:0}.done{text-decoration:line-through;color:#a0aec0}small{display:block;color:#718096;font-size:12px}a{color:#c53030;font-size:12px;font-weight:bold;text-decoration:none}</style></head><body><header><div style="display:flex;justify-content:space-between;align-items:center"><b>🍳 第2弾・6品レシピ＆段取り</b><button onclick="rst()" style="font-size:11px;padding:4px 8px">リセット</button></div><div class="bar"><div class="fill" id="fl"></div></div><div id="pt" style="font-size:12px;text-align:right;color:#2b6cb0;font-weight:bold">0/0</div><div class="tabs"><button class="tab act" onclick="sw('s',this)">🛒買い出し</button><button class="tab" onclick="sw('p',this)">⏱段取り</button><button class="tab" onclick="sw('r',this)">📖レシピ</button></div></header>
-<div id="s" class="panel act">
-<div class="card"><h2>🥩 肉・魚介</h2>
-<label><input type="checkbox" id="s1"><span>鶏もも肉（2枚）<small>①鶏のサクサク揚げ(1枚) ／ ④ネギ塩パエリア(1枚)</small></span></label>
-<label><input type="checkbox" id="s2"><span>鶏むね肉（250〜300g）<small>②鶏むねと豆腐のゴロゴロつくね(270g)</small></span></label>
-<label><input type="checkbox" id="s3"><span>豚ひき肉（200g）<small>⑥チーたまカレーそぼろご飯</small></span></label>
-<label><input type="checkbox" id="s4"><span>生鮭切り身（2切れ）<small>③きのこたっぷり鮭の味噌マヨ焼き</small></span></label></div>
-<div class="card"><h2>🥬 野菜・きのこ・柑橘</h2>
-<label><input type="checkbox" id="s5"><span>舞茸（1パック）<small>②つくね(1/2パック) ／ ③鮭の味噌マヨ焼き(1/2パック)</small></span></label>
-<label><input type="checkbox" id="s6"><span>えのき（1/2パック）<small>③鮭の味噌マヨ焼き</small></span></label>
-<label><input type="checkbox" id="s7"><span>大葉（5〜10枚）<small>②ゴロゴロつくね</small></span></label>
-<label><input type="checkbox" id="s8"><span>長ネギ（1本）＋小ネギ（適量）<small>④パエリア(長ネギ1本・小ネギ) ／ ⑤担々麺(小ネギ)</small></span></label>
-<label><input type="checkbox" id="s9"><span>かぼす（またはレモン・スライス用）<small>④ネギ塩パエリア</small></span></label></div>
-<div class="card"><h2>🧀 卵・チーズ・豆腐・麺</h2>
-<label><input type="checkbox" id="s10"><span>卵（4〜5個）<small>⑤担々麺(卵黄1個) ／ ⑥チーたまカレーそぼろ(3〜4個)</small></span></label>
-<label><input type="checkbox" id="s11"><span>ピザ用チーズ（80g）<small>③鮭味噌マヨ(25g×2) ／ ⑥チーたまカレーそぼろ(30g)</small></span></label>
-<label><input type="checkbox" id="s12"><span>木綿豆腐（約150〜160g・半丁）<small>②ゴロゴロつくね</small></span></label>
-<label><input type="checkbox" id="s13"><span>焼きそば麺（1玉）<small>⑤5分で完成！濃厚担々麺</small></span></label>
-<label><input type="checkbox" id="s14"><span>バター（20g＋仕上げ用）<small>④ネギ塩パエリア</small></span></label></div>
-<div class="card"><h2>🧂 粉類・調味料・その他ストック</h2>
-<label><input type="checkbox" id="s15"><span>片栗粉・小麦粉・お米<small>①片栗粉＋小麦粉 ／ ②片栗粉大4 ／ ④米2合 ／ ⑥ごはん</small></span></label>
-<label><input type="checkbox" id="s16"><span>塩昆布・白すりごま・いりごま<small>②塩昆布2つまみ ／ ⑤すりごま大1 ／ ④⑤ごま</small></span></label>
-<label><input type="checkbox" id="s17"><span>カレー粉・ウスターソース・ケチャップ<small>⑥カレー粉小2・ウスター大1・ケチャップ大3</small></span></label>
-<label><input type="checkbox" id="s18"><span>味噌・マヨネーズ・めんつゆ・みりん・醤油・酒・砂糖<small>①③④⑤⑥で使用</small></span></label>
-<label><input type="checkbox" id="s19"><span>昆布だし(顆粒可)・にんにく(チューブ/パウダー)・ラー油・ごま油・揚げ油・塩・胡椒・パセリ・粉チーズ<small>④⑤⑥で使用</small></span></label></div></div>
-<div id="p" class="panel">
-<div class="card"><h2>STEP 1：下ごしらえ（加熱前）</h2>
-<label><input type="checkbox" id="p1"><span>【④パエリア】米2合を研いで浸水させ、水気を切っておく。長ネギ1本はみじん切りにする</span></label>
-<label><input type="checkbox" id="p2"><span>【③鮭ホイル】鮭2切れを室温に戻し、舞茸・えのき(各1/2パック)を割く。味噌大1/2＋みりん大1を混ぜる</span></label>
-<label><input type="checkbox" id="p3"><span>【①鶏サクサク揚げ】鶏もも1枚のドリップを拭き、軟骨等をハサミで除き醤油大1を揉み込み皮を伸ばす</span></label>
-<label><input type="checkbox" id="p4"><span>【②ゴロゴロつくね】鶏むね270gを1cm角に切る。ポリ袋に鶏むね・木綿豆腐150g・舞茸1/2パック・大葉5〜10枚・塩昆布2つまみ・片栗粉大4を入れ揉む</span></label>
-<label><input type="checkbox" id="p5"><span>【⑥チーたまカレーそぼろ】ボウルに卵3〜4個・ピザ用チーズ30g・塩胡椒を混ぜる。別器で砂糖・ウスターソース・酒各大1・ケチャップ大3・醤油大1/2・カレー粉小2・にんにく2cmを混ぜる</span></label></div>
-<div class="card"><h2>STEP 2：加熱・仕上げ</h2>
-<label><input type="checkbox" id="p6"><span>【④パエリア(約26分)】バター20gで鶏もも1枚に焼き色→ネギと米2合を炒め、水400ml・昆布だし小2・塩小1.5・にんにくパウダー小1を加え沸騰後弱火15分→蒸らし10分→かぼす・小ネギ・ごま・追いバターを乗せ強火1分でおこげ</span></label>
-<label><input type="checkbox" id="p7"><span>【③鮭の味噌マヨ焼き(約13分)】アルミホイル器にきのこ・鮭・味噌ダレ・チーズ各25g・マヨ各大1/2を乗せトースター200℃で13分〜焼く</span></label>
-<label><input type="checkbox" id="p8"><span>【①鶏のサクサク揚げ】鶏肉に片栗粉＋小麦粉をまぶし、170℃油で皮目から揚げ焼き(中火165℃キープ→油を回しかけながら火を通す)</span></label>
-<label><input type="checkbox" id="p9"><span>【②ゴロゴロつくね】ごま油を熱したフライパンでタネを小さくまとめて両面カリッと焼く</span></label>
-<label><input type="checkbox" id="p10"><span>【⑥チーたまカレーそぼろ(5分)】先に皿にごはんを盛る→卵液を半熟に焼いてごはんにかける→同じフライパンで豚ひき肉200gを炒め合わせ調味料を煮絡め、卵の上に乗せて完成</span></label>
-<label><input type="checkbox" id="p11"><span>【⑤濃厚担々麺(5分)】丼にすりごま大1・マヨ大1・砂糖小2・味噌小2・めんつゆ小2を混ぜ熱湯200mlで溶かす→600W2分加熱した焼きそば麺を絡め卵黄・小ネギ・ごま・ラー油を乗せる</span></label></div></div>
-<div id="r" class="panel">
-<div class="card"><h2>① 鶏のサクサク揚げ <a href="https://m.youtube.com/watch?v=AvQQo7m-fyM" target="_blank">▶動画</a></h2>
-<label><input type="checkbox" id="r1"><span>材料：鶏もも1枚／醤油大さじ1／片栗粉・小麦粉（各適量）／揚げ焼き油</span></label>
-<label><input type="checkbox" id="r2"><span>手順：ドリップを拭き切り開かず醤油大1を揉み込む→片栗粉＋小麦粉をまぶし皮を伸ばす→170℃油に皮目から入れ165℃前後で揚げ焼きし、油を回しかけながら火を通す</span></label></div>
-<div class="card"><h2>② 鶏むねと豆腐のゴロゴロつくね <a href="https://m.youtube.com/watch?v=COClq4UzUMc" target="_blank">▶動画</a></h2>
-<label><input type="checkbox" id="r3"><span>材料：鶏むね270g(皮除き1cm角)／木綿豆腐150g／舞茸1/2パック／大葉5〜10枚／塩昆布2つまみ(又は鶏ガラ小1)／片栗粉大さじ4／ごま油</span></label>
-<label><input type="checkbox" id="r4"><span>手順：材料すべてをポリ袋に入れてよく揉み混ぜる→ごま油をひいたフライパンで小さくまとめて両面カリッと焼く</span></label></div>
-<div class="card"><h2>③ きのこたっぷり鮭の味噌マヨ焼き <a href="https://m.youtube.com/watch?v=IjBaTisPAN4" target="_blank">▶動画</a></h2>
-<label><input type="checkbox" id="r5"><span>材料：生鮭2切れ／舞茸1/2パック／えのき1/2パック／味噌大さじ1/2・みりん大さじ1／ピザ用チーズ25g×2／マヨネーズ大さじ1/2×2</span></label>
-<label><input type="checkbox" id="r6"><span>手順：アルミホイルを器状に折り、割いたきのこ・鮭を乗せ混ぜた味噌ダレを塗る→チーズとマヨをたっぷりかけトースター200℃で13分〜こんがり焼く</span></label></div>
-<div class="card"><h2>④ 鬼リピ飯！ネギ塩パエリア <a href="https://m.youtube.com/watch?v=2ghHFHUHBVs" target="_blank">▶動画</a></h2>
-<label><input type="checkbox" id="r7"><span>材料：鶏もも1枚／バター20g＋追いバター／長ネギ1本(みじん切り)／浸水後水切り米2合／水400ml／昆布だし小2(顆粒小1)／塩小1.5／にんにくパウダー小1／かぼす・小ネギ・ごま</span></label>
-<label><input type="checkbox" id="r8"><span>手順：バターで鶏肉に焼き色→ネギと米を軽く炒め水と調味料を入れ沸騰後蓋をし弱火15分→火を止め10分蒸らす→かぼす・小ネギ・ごま・追いバターを乗せ強火1分でおこげを作る</span></label></div>
-<div class="card"><h2>⑤ 5分で完成！濃厚担々麺 <a href="https://m.youtube.com/watch?v=n9pOy89PHQg" target="_blank">▶動画</a></h2>
-<label><input type="checkbox" id="r9"><span>材料：焼きそば麺1玉／すりごま大さじ1／マヨネーズ大さじ1／砂糖小さじ2／味噌小さじ2／めんつゆ小さじ2／熱湯200ml／卵黄1個・小ネギ・すりごま・ラー油</span></label>
-<label><input type="checkbox" id="r10"><span>手順：丼に調味料を混ぜ熱湯200mlを少しずつ注いでスープを作る→袋のまま600Wで2分加熱した焼きそば麺を入れて絡め、卵黄・小ネギ・ごま・ラー油を乗せる</span></label></div>
-<div class="card"><h2>⑥ チーたまカレーそぼろご飯 <a href="https://m.youtube.com/shorts/CxZ8uvez2hI" target="_blank">▶動画</a></h2>
-<label><input type="checkbox" id="r11"><span>材料：豚ひき肉200g／卵3〜4個・ピザ用チーズ30g・塩胡椒／合わせ調味料(砂糖・ウスターソース・酒各大さじ1／ケチャップ大さじ3／醤油大さじ1/2／カレー粉小さじ2／にんにくチューブ2cm)／ごはん・(お好みで粉チーズ・パセリ)</span></label>
-<label><input type="checkbox" id="r12"><span>手順：先にごはんを皿に盛る→混ぜた卵液を半熟状に焼きごはんにかける→同じフライパンで豚ひき肉200gを炒め、合わせ調味料を加えてしっかり煮絡め卵の上に乗せる</span></label></div></div>
-<script>const K='rc_batch2_v2';let st=JSON.parse(localStorage.getItem(K)||'{}');function up(){let c=document.querySelectorAll('input'),n=0;c.forEach(x=>{x.checked=!!st[x.id];x.nextElementSibling.classList.toggle('done',x.checked);if(x.checked)n++});document.getElementById('fl').style.width=(n/c.length*100)+'%';document.getElementById('pt').textContent=n+'/'+c.length}document.querySelectorAll('input').forEach(x=>x.onchange=()=>{st[x.id]=x.checked;localStorage.setItem(K,JSON.stringify(st));up()});function sw(id,b){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('act'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));document.getElementById(id).classList.add('act');b.classList.add('act')}function rst(){if(confirm('リセットしますか？')){st={};localStorage.removeItem(K);up()}}up();</script></body></html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTubeレシピ・アプリビルダー＆キッチンコンシェルジュ（第2弾・6品）</title>
+<style>
+  :root {
+    --primary: #0f766e;
+    --primary-light: #ccfbf1;
+    --primary-dark: #115e59;
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 12px;
+    padding-bottom: 40px;
+  }
+  .container { max-width: 640px; margin: 0 auto; }
+
+  /* Header Card */
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .app-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .header-title-wrap { flex: 1; }
+  .header-title {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .badge-count {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .action-row {
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: opacity 0.15s;
+  }
+  .btn:active { opacity: 0.8; }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    flex: 1;
+  }
+  .btn-outline {
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border);
+    flex: 1;
+  }
+  .shop-badge {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-size: 12px;
+    padding: 1px 7px;
+    border-radius: 999px;
+  }
+
+  /* Search & Controls */
+  .search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    background: #f8fafc;
+    margin-bottom: 12px;
+  }
+  .servings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .servings-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .serving-btns {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  .serving-btn {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .serving-btn.active {
+    background: #0284c7;
+    color: #fff;
+    border-color: #0284c7;
+  }
+  .tag-scroll {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .tag-scroll::-webkit-scrollbar { display: none; }
+  .tag-pill {
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .tag-pill.active {
+    background: #0284c7;
+    color: #fff;
+    border-color: #0284c7;
+  }
+
+  /* Recipe Card */
+  .recipe-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--primary);
+  }
+  .recipe-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .recipe-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .recipe-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .r-tag {
+    font-size: 11px;
+    background: #f0fdfa;
+    color: var(--primary-dark);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin: 10px 0 6px;
+  }
+  .ing-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .ing-item {
+    font-size: 12px;
+    background: #f8fafc;
+    padding: 6px 8px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .ing-amt { font-weight: 700; color: var(--primary-dark); white-space: nowrap; }
+  .step-list {
+    padding-left: 18px;
+    font-size: 13px;
+    color: #334155;
+  }
+  .step-list li { margin-bottom: 4px; }
+
+  /* Shopping List Modal (Optimized for Maximum List Space) */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    padding: 8px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Compact Modal Header + Accordion Filter */
+  .modal-top {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #f8fafc;
+    flex-shrink: 0;
+  }
+  .modal-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .modal-title {
+    font-size: 15px;
+    font-weight: 800;
+  }
+  .copy-mini-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  /* Accordion Toggle Bar */
+  .filter-toggle {
+    margin-top: 8px;
+    width: 100%;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .filter-panel {
+    display: none;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .filter-panel.open { display: block; }
+  .filter-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .filter-links button {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 8px;
+  }
+  .chip-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .recipe-chip {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--primary);
+    background: #fff;
+    color: var(--primary);
+    cursor: pointer;
+  }
+  .recipe-chip.selected {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  /* Wide Scrollable Shopping List Body */
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .shop-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .shop-item.checked {
+    background: #f8fafc;
+    opacity: 0.55;
+  }
+  .shop-item.checked .shop-name {
+    text-decoration: line-through;
+  }
+  .shop-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex: 1;
+  }
+  .shop-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+  }
+  .shop-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .shop-sources {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .shop-amount {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    white-space: nowrap;
+  }
+
+  /* Compact Modal Footer */
+  .modal-footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .uncheck-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .close-btn {
+    background: #1e293b;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Add Recipe Modal */
+  .add-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin: auto;
+    width: 100%;
+    max-width: 500px;
+  }
+  .add-box textarea {
+    width: 100%;
+    height: 120px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 13px;
+    margin: 10px 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="header-top">
+      <div class="app-icon">🥗</div>
+      <div class="header-title-wrap">
+        <div class="header-title">
+          <span>YouTubeレシピ・アプリビルダー</span>
+          <span class="badge-count" id="totalRecipeBadge">6品収録</span>
+        </div>
+        <div class="header-sub">検索・分量計算・買い物リスト統合・キッチン管理</div>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="openAddModal()">＋ レシピ追加</button>
+      <button class="btn btn-outline" onclick="openShopModal()">
+        🛒 買い物リスト <span class="shop-badge" id="shopCountBadge">0</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <input type="text" id="searchInput" class="search-input" placeholder="食材・調味料・調理法で横断検索（例：海老、舞茸、レンジ）" oninput="renderRecipes()">
+    <div class="servings-row">
+      <span class="servings-label">👥 分量計算:</span>
+      <div class="serving-btns">
+        <button class="serving-btn" onclick="setServings(1, this)">1人分</button>
+        <button class="serving-btn active" onclick="setServings(2, this)">2人分</button>
+        <button class="serving-btn" onclick="setServings(3, this)">3人分</button>
+        <button class="serving-btn" onclick="setServings(4, this)">4人分</button>
+      </div>
+    </div>
+    <div class="tag-scroll" id="tagBar"></div>
+  </div>
+
+  <div id="recipeList"></div>
+</div>
+
+<!-- 買い物リストモーダル（折りたたみフィルター搭載・リスト最大化設計） -->
+<div class="modal-overlay" id="shopModal">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-header-row">
+        <span class="modal-title">🛒 買い物リスト（<span id="modalServingsLabel">2人分</span>）</span>
+        <button class="copy-mini-btn" id="copyBtn" onclick="copyShoppingList()">📋 リストをコピー</button>
+      </div>
+
+      <button class="filter-toggle" onclick="toggleFilterPanel()">
+        <span id="filterSummaryText">対象レシピを絞り込む（6 / 6品 選択中）</span>
+        <span id="filterArrow">▼ 開く</span>
+      </button>
+
+      <div class="filter-panel" id="filterPanel">
+        <div class="filter-actions">
+          <span>タップでON/OFF（共通食材は自動統合）</span>
+          <div class="filter-links">
+            <button onclick="selectAllRecipes(true)">全選択</button>
+            <button onclick="selectAllRecipes(false)">全解除</button>
+          </div>
+        </div>
+        <div class="chip-wrap" id="recipeChipWrap"></div>
+      </div>
+    </div>
+
+    <div class="modal-body" id="shoppingListContainer"></div>
+
+    <div class="modal-footer">
+      <button class="uncheck-btn" onclick="clearCheckedItems()">購入済みチェックを外す</button>
+      <button class="close-btn" onclick="closeShopModal()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 簡易レシピ追加モーダル -->
+<div class="modal-overlay" id="addModal">
+  <div class="add-box">
+    <div class="modal-title">＋ レシピを追加（タイトルと材料）</div>
+    <p style="font-size:12px;color:#64748b;margin-top:4px;">1行目にレシピ名、2行目以降に「食材名 数量 単位」を入力してください。</p>
+    <textarea id="quickRecipeInput" placeholder="例：&#10;トマトとツナの冷製サラダ&#10;トマト 2 個&#10;ツナ缶 1 缶&#10;オリーブオイル 1 大さじ"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeAddModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveQuickRecipe()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_RECIPES = [
+  {
+    id: "r1",
+    channel: "まみ ラクうまごはん",
+    time: "約8分",
+    title: "どハマりサラダ（海老アボサラダ）",
+    tags: ["時短", "レンジ調理", "魚介", "さっぱり", "和風中華ダレ"],
+    baseServings: 2,
+    ingredients: [
+      { name: "冷凍海老", amount: 8, unit: "尾（約120g）" },
+      { name: "アボカド", amount: 1, unit: "個" },
+      { name: "きゅうり", amount: 1, unit: "本" },
+      { name: "醤油", amount: 1, unit: "大さじ" },
+      { name: "酢", amount: 1, unit: "大さじ" },
+      { name: "ごま油", amount: 1, unit: "大さじ" },
+      { name: "白いりごま", amount: 1, unit: "大さじ" }
+    ],
+    steps: [
+      "冷凍海老は解凍して背わたを取り、酒少々をふって600Wのレンジで約2分加熱する。",
+      "アボカドときゅうりを一口大の角切りにする。",
+      "ボウルに醤油・酢・ごま油・白いりごまを混ぜ、具材をすべて和えて完成。"
+    ]
+  },
+  {
+    id: "r2",
+    channel: "旬の作り置きキッチン",
+    time: "約10分",
+    title: "焼きレンコンと舞茸のバター醤油サラダ",
+    tags: ["腸活", "食物繊維", "フライパン", "香ばしい"],
+    baseServings: 2,
+    ingredients: [
+      { name: "レンコン", amount: 150, unit: "g" },
+      { name: "舞茸", amount: 1, unit: "パック" },
+      { name: "ベビーリーフ", amount: 1, unit: "袋" },
+      { name: "バター", amount: 10, unit: "g" },
+      { name: "醤油", amount: 1, unit: "大さじ" },
+      { name: "黒こしょう", amount: 1, unit: "少々" }
+    ],
+    steps: [
+      "レンコンは半月切りにして水にさらし、水気を切る。舞茸は食べやすくほぐす。",
+      "フライパンにバターを溶かし、レンコンと舞茸を焼き色がつくまで炒める。",
+      "醤油を回し入れて香りを立たせ、ベビーリーフの上に盛り付けて黒こしょうをふる。"
+    ]
+  },
+  {
+    id: "r3",
+    channel: "ピリ辛ヘルシー食堂",
+    time: "約10分",
+    title: "ヘルシー麻辣湯サラダ",
+    tags: ["ダイエット", "ピリ辛", "温サラダ", "春雨"],
+    baseServings: 2,
+    ingredients: [
+      { name: "緑豆春雨", amount: 40, unit: "g" },
+      { name: "もやし", amount: 100, unit: "g" },
+      { name: "チンゲン菜", amount: 1, unit: "株" },
+      { name: "鶏ささみ", amount: 2, unit: "本" },
+      { name: "豆板醤", amount: 1, unit: "小さじ" },
+      { name: "ごま油", amount: 1, unit: "大さじ" },
+      { name: "鶏がらスープの素", amount: 1, unit: "小さじ" }
+    ],
+    steps: [
+      "春雨・もやし・ざく切りにしたチンゲン菜をさっと茹でて水気を切る。",
+      "ささみはレンジで加熱して細かく裂く。",
+      "豆板醤・ごま油・鶏がらスープの素を混ぜたタレで全体を和える。"
+    ]
+  },
+  {
+    id: "r4",
+    channel: "毎日野菜ラボ",
+    time: "約7分",
+    title: "超簡単ヘルシーチョップドサラダ",
+    tags: ["ダイエット", "火を使わない", "時短", "大量消費"],
+    baseServings: 2,
+    ingredients: [
+      { name: "キャベツ", amount: 150, unit: "g" },
+      { name: "きゅうり", amount: 1, unit: "本" },
+      { name: "サラダチキン", amount: 1, unit: "パック" },
+      { name: "ミックスビーンズ", amount: 50, unit: "g" },
+      { name: "オリーブオイル", amount: 1, unit: "大さじ" },
+      { name: "レモン汁", amount: 1, unit: "大さじ" },
+      { name: "塩", amount: 1, unit: "少々" }
+    ],
+    steps: [
+      "キャベツ、きゅうり、サラダチキンをすべて1cm角に細かく刻む。",
+      "ミックスビーンズと一緒にボウルへ入れる。",
+      "オリーブオイル・レモン汁・塩でよく混ぜ合わせる。"
+    ]
+  },
+  {
+    id: "r5",
+    channel: "やせ飯チャンネル",
+    time: "約5分",
+    title: "【5キロ痩せた】水菜とろたまサラダ",
+    tags: ["ダイエット", "5分レシピ", "節約", "温泉卵"],
+    baseServings: 2,
+    ingredients: [
+      { name: "水菜", amount: 1, unit: "束" },
+      { name: "温泉卵", amount: 2, unit: "個" },
+      { name: "刻み海苔", amount: 1, unit: "適量" },
+      { name: "醤油", amount: 1, unit: "大さじ" },
+      { name: "ごま油", amount: 1, unit: "大さじ" },
+      { name: "白いりごま", amount: 1, unit: "小さじ" }
+    ],
+    steps: [
+      "水菜は洗って3〜4cm幅に切り、しっかり水気を切る。",
+      "器に水菜を盛り、醤油・ごま油・白いりごまを回しかける。",
+      "中央に温泉卵をのせ、刻み海苔を散らして崩しながら食べる。"
+    ]
+  },
+  {
+    id: "r6",
+    channel: "ボディメイク飯",
+    time: "約8分",
+    title: "【ダイエット飯】最強ダイエットサラダ",
+    tags: ["ダイエット", "高タンパク", "レンジ調理", "満足感"],
+    baseServings: 2,
+    ingredients: [
+      { name: "ブロッコリー", amount: 1, unit: "株" },
+      { name: "ゆで卵", amount: 2, unit: "個" },
+      { name: "ツナ水煮缶", amount: 1, unit: "缶" },
+      { name: "塩", amount: 1, unit: "少々" },
+      { name: "オリーブオイル", amount: 1, unit: "小さじ" },
+      { name: "黒こしょう", amount: 1, unit: "少々" }
+    ],
+    steps: [
+      "ブロッコリーは小房に分けて600Wのレンジで約2分30秒加熱する。",
+      "ゆで卵は粗く刻み、水気を切ったツナ缶と合わせる。",
+      "塩・オリーブオイル・黒こしょうで味を調えて完成。"
+    ]
+  }
+];
+
+let recipes = JSON.parse(localStorage.getItem("yt_recipes_v2") || "null") || DEFAULT_RECIPES;
+let currentServings = 2;
+let selectedTag = "すべて";
+let selectedRecipeIds = new Set(recipes.map(r => r.id));
+let checkedItems = new Set(JSON.parse(localStorage.getItem("yt_checked_v2") || "[]"));
+let isFilterOpen = false;
+
+function saveState() {
+  localStorage.setItem("yt_recipes_v2", JSON.stringify(recipes));
+  localStorage.setItem("yt_checked_v2", JSON.stringify([...checkedItems]));
+}
+
+function formatAmount(baseAmt, baseServings, targetServings) {
+  const val = (baseAmt / baseServings) * targetServings;
+  return Number.isInteger(val) ? val : Math.round(val * 10) / 10;
+}
+
+function renderTags() {
+  const tagCounts = { "すべて": recipes.length };
+  recipes.forEach(r => r.tags.forEach(t => {
+    tagCounts[t] = (tagCounts[t] || 0) + 1;
+  }));
+  const bar = document.getElementById("tagBar");
+  bar.innerHTML = Object.entries(tagCounts).map(([tag, count]) => `
+    <button class="tag-pill ${selectedTag === tag ? 'active' : ''}" onclick="selectTag('${tag}')">
+      ${tag === 'すべて' ? `すべて (${count})` : `#${tag}`}
+    </button>
+  `).join("");
+}
+
+function selectTag(tag) {
+  selectedTag = tag;
+  renderTags();
+  renderRecipes();
+}
+
+function setServings(num, btn) {
+  currentServings = num;
+  document.querySelectorAll(".serving-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderRecipes();
+  updateShopBadge();
+}
+
+function renderRecipes() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filtered = recipes.filter(r => {
+    const matchTag = selectedTag === "すべて" || r.tags.includes(selectedTag);
+    const haystack = [r.title, ...r.tags, ...r.ingredients.map(i => i.name)].join(" ").toLowerCase();
+    const matchQuery = !q || haystack.includes(q);
+    return matchTag && matchQuery;
+  });
+
+  document.getElementById("totalRecipeBadge").textContent = `${recipes.length}品収録`;
+  const list = document.getElementById("recipeList");
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="card" style="text-align:center;color:#64748b;">該当するレシピがありません</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(r => `
+    <div class="recipe-card">
+      <div class="recipe-meta">
+        <span>▶ ${r.channel} ・ ⏱ ${r.time}</span>
+      </div>
+      <div class="recipe-title">${r.title}</div>
+      <div class="recipe-tags">
+        ${r.tags.map(t => `<span class="r-tag">#${t}</span>`).join("")}
+      </div>
+      <div class="section-label">材料（${currentServings}人分）</div>
+      <ul class="ing-list">
+        ${r.ingredients.map(i => `
+          <li class="ing-item">
+            <span>${i.name}</span>
+            <span class="ing-amt">${formatAmount(i.amount, r.baseServings, currentServings)}${i.unit}</span>
+          </li>
+        `).join("")}
+      </ul>
+      <div class="section-label">作り方</div>
+      <ol class="step-list">
+        ${r.steps.map(s => `<li>${s}</li>`).join("")}
+      </ol>
+    </div>
+  `).join("");
+}
+
+function getAggregatedShoppingList() {
+  const map = new Map();
+  recipes.forEach(r => {
+    if (!selectedRecipeIds.has(r.id)) return;
+    r.ingr
