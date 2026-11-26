@@ -1,1 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6品サラダレシピ・買い出し＆段取りリスト</title>
+  <style>
+    :root {
+      --bg: #f4f7f4;
+      --card: #ffffff;
+      --ink: #1f2922;
+      --muted: #5c6b60;
+      --accent: #2e7d32;
+      --accent-soft: #e8f5e9;
+      --border: #dce5de;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+      padding: 14px;
+    }
+    .app {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .header {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .progress-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .bar {
+      height: 6px;
+      background: #e3ece5;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.2s ease;
+    }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      color: var(--accent);
+    }
+    .item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-top: 1px solid #eef3ef;
+    }
+    .item:first-of-type { border-top: none; }
+    .item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
+    .item-label { flex: 1; font-size: 14px; }
+    .item-sub { display: block; font-size: 12px; color: var(--muted); }
+    .done { text-decoration: line-through; color: var(--muted); }
+    .recipe-card {
+      border-top: 1px solid #eef3ef;
+      padding: 10px 0;
+    }
+    .recipe-card:first-child { border-top: none; }
+    .recipe-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+    .recipe-meta { font-size: 12px; color: var(--muted); }
+    .note {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--accent-soft);
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="header-top">
+        <h1 class="title">🥗 6品サラダ・買い出し＆段取り</h1>
+        <button class="btn" id="resetBtn" type="button">全リセット</button>
+      </div>
+      <div class="progress-row">
+        <span id="progressText">0 / 0 (0%)</span>
+        <span id="syncStatus">自動保存</span>
+      </div>
+      <div class="bar"><div class="bar-fill" id="progressBar"></div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="shop" type="button">🛒 買い出し</button>
+      <button class="tab" data-tab="prep" type="button">⏱️ 当日の段取り</button>
+      <button class="tab" data-tab="recipes" type="button">📖 6品レシピ</button>
+    </div>
+
+    <div class="note">
+      チェック状態はこの端末のブラウザに自動保存されます。GAS連携URL（<code>GAS_FEED_URL</code>）を設定するとスプレッドシートのデータも反映できます。
+    </div>
+
+    <div id="view-shop"></div>
+    <div id="view-prep" style="display:none;"></div>
+    <div id="view-recipes" style="display:none;"></div>
+  </div>
+
+  <script>
+    // 必要に応じてGAS WebアプリのURLを設定してください（例: "https://script.google.com/macros/s/xxxxx/exec"）
+    const GAS_FEED_URL = "";
+    const STORAGE_KEY = "salad6_checklist_v1";
+
+    const DEFAULT_DATA = {
+      shop: [
+        {
+          category: "🥬 葉物・生野菜",
+          items: [
+            { id: "s1", name: "サニーレタス / ロメインレタス（1〜2株）", sub: "使用：①グリーンサラダ／③シーザー風／⑥温野菜＆生野菜ボウル" },
+            { id: "s2", name: "ベビーリーフ（1パック）", sub: "使用：①グリーンサラダ／②サーモン＆アボカド" },
+            { id: "s3", name: "きゅうり（2本）", sub: "使用：①グリーンサラダ／④トマト＆きゅうりデリ風" },
+            { id: "s4", name: "ミニトマト（1パック）", sub: "使用：①グリーンサラダ／④トマト＆きゅうりデリ風" },
+            { id: "s5", name: "アボカド（1〜2個）", sub: "使用：②サーモン＆アボカド／⑤チキン＆豆サラダ" }
+          ]
+        },
+        {
+          category: "🥦 根菜・温野菜用",
+          items: [
+            { id: "s6", name: "ブロッコリー（1株）", sub: "使用：⑥温野菜＆生野菜ボウル" },
+            { id: "s7", name: "さつまいも または かぼちゃ（1/2個）", sub: "使用：⑥温野菜＆生野菜ボウル" },
+            { id: "s8", name: "紫玉ねぎ または 玉ねぎ（1/2個）", sub: "使用：②サーモン＆アボカド／④トマト＆きゅうりデリ風" }
+          ]
+        },
+        {
+          category: "🐟 具材・たんぱく質・乾物",
+          items: [
+            { id: "s9", name: "スモークサーモン または 刺身用サーモン（1パック）", sub: "使用：②サーモン＆アボカド" },
+            { id: "s10", name: "サラダチキン または 鶏むね肉（1枚）", sub: "使用：⑤チキン＆豆サラダ" },
+            { id: "s11", name: "ミックスビーンズ・コーン缶（各1缶）", sub: "使用：⑤チキン＆豆サラダ／③シーザー風" },
+            { id: "s12", name: "粉チーズ・クルトン・ゆで卵（適量）", sub: "使用：③シーザー風／⑥温野菜＆生野菜ボウル" }
+          ]
+        },
+        {
+          category: "🫙 調味料・ドレッシング素材",
+          items: [
+            { id: "s13", name: "オリーブオイル・レモン汁（または酢）", sub: "全6品のドレッシング・下味に共通使用" },
+            { id: "s14", name: "塩・黒こしょう・マヨネーズ・しょうゆ", sub: "全6品の味調整・ソース作りに使用" }
+          ]
+        }
+      ],
+      prep: [
+        {
+          category: "下ごしらえ（調理30〜40分前）",
+          items: [
+            { id: "p1", name: "葉物・きゅうり・トマトを洗い、しっかり水気を切る", sub: "水気が残るとドレッシングが薄まるためキッチンペーパー等で拭く" },
+            { id: "p2", name: "ブロッコリー・さつまいも/かぼちゃを一口大に切る", sub: "⑥の温野菜用に火が通りやすい大きさに揃える" },
+            { id: "p3", name: "ゆで卵を作る・サラダチキンをほぐす・豆とコーンの水気を切る", sub: "⑤・③・⑥の具材を小皿に分けておく" }
+          ]
+        },
+        {
+          category: "加熱＆ドレッシング準備（10〜15分前）",
+          items: [
+            { id: "p4", name: "温野菜を加熱して粗熱を取る", sub: "レンジまたは茹でたあと、水っぽくならないようザルで湯気を飛ばす" },
+            { id: "p5", name: "アボカド・サーモン・玉ねぎをカットする", sub: "変色しやすいアボカドは切る直前にレモン汁を軽く絡める" },
+            { id: "p6", name: "ドレッシングを混ぜ合わせる", sub: "柑橘系・オイル系・クリーミー系を分けて用意する" }
+          ]
+        },
+        {
+          category: "盛り付け直前（食べる直前）",
+          items: [
+            { id: "p7", name: "食べる直前にドレッシングを和える・かける", sub: "しんなりするのを防ぎ、シャキッと感をキープする" },
+            { id: "p8", name: "粉チーズ・クルトン・黒こしょうを仕上げに散らす", sub: "食感と香りのアクセントを最後にのせる" }
+          ]
+        }
+      ],
+      recipes: [
+        { name: "① シャキシャキ基本のグリーンサラダ", meta: "レタス・ベビーリーフ・きゅうり・ミニトマト／オリーブオイル＋レモン＋塩こしょう" },
+        { name: "② サーモンとアボカドのデリサラダ", meta: "サーモン・アボカド・玉ねぎ／わさびしょうゆまたはレモンオイル" },
+        { name: "③ 香ばしクルトンのシーザー風サラダ", meta: "ロメインレタス・クルトン・粉チーズ／マヨ＋チーズ＋レモン＋黒こしょう" },
+        { name: "④ トマトときゅうりのさっぱりマリネ風", meta: "ミニトマト・きゅうり・玉ねぎ／酢（またはレモン）＋オリーブオイル＋塩" },
+        { name: "⑤ チキンとミックスビーンズのたんぱくサラダ", meta: "サラダチキン・ミックスビーンズ・コーン／好みのドレッシングで食べ応え重視" },
+        { name: "⑥ 根菜とブロッコリーの温野菜サラダ", meta: "ブロッコリー・さつまいも/かぼちゃ・卵／温かいままオイル＆塩こしょう" }
+      ]
+    };
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return { checked: {} };
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function getAllCheckableIds() {
+      const ids = [];
+      for (const group of [...DEFAULT_DATA.shop, ...DEFAULT_DATA.prep]) {
+        for (const item of group.items) ids.push(item.id);
+      }
+      return ids;
+    }
+
+    function updateProgress() {
+      const ids = getAllCheckableIds();
+      const total = ids.length;
+      const done = ids.filter(id => !!state.checked[id]).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById("progressText").textContent = `${done} / ${total} (${pct}%)`;
+      document.getElementById("progressBar").style.width = `${pct}%`;
+    }
+
+    function renderChecklist(containerId, groups) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = groups.map(group => `
+        <div class="section">
+          <h2 class="section-title">${group.category}</h2>
+          ${group.items.map(item => {
+            const checked = !!state.checked[item.id];
+            return `
+              <label class="item">
+                <input type="checkbox" data-id="${item.id}" ${checked ? "checked" : ""} />
+                <span class="item-label ${checked ? "done" : ""}">
+                  ${item.name}
+                  ${item.sub ? `<span class="item-sub">${item.sub}</span>` : ""}
+                </span>
+              </label>
+            `;
+          }).join("")}
+        </div>
+      `).join("");
+
+      el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener("change", () => {
+          const id = cb.getAttribute("data-id");
+          state.checked[id] = cb.checked;
+          saveState();
+          const label = cb.nextElementSibling;
+          if (label) label.classList.toggle("done", cb.checked);
+          updateProgress();
+        });
+      });
+    }
+
+    function renderRecipes() {
+      const el = document.getElementById("view-recipes");
+      el.innerHTML = `
+        <div class="section">
+          <h2 class="section-title">6品サラダ一覧</h2>
+          ${DEFAULT_DATA.recipes.map(r => `
+            <div class="recipe-card">
+              <div class="recipe-name">${r.name}</div>
+              <div class="recipe-meta">${r.meta}</div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        const target = tab.getAttribute("data-tab");
+        document.getElementById("view-shop").style.display = target === "shop" ? "" : "none";
+        document.getElementById("view-prep").style.display = target === "prep" ? "" : "none";
+        document.getElementById("view-recipes").style.display = target === "recipes" ? "" : "none";
+      });
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      if (confirm("すべてのチェックをリセットしますか？")) {
+        state.checked = {};
+        saveState();
+        renderChecklist("view-shop", DEFAULT_DATA.shop);
+        renderChecklist("view-prep", DEFAULT_DATA.prep);
+        updateProgress();
+      }
+    });
+
+    async function fetchFromGasIfConfigured() {
+      if (!GAS_FEED_URL) return;
+      const statusEl = document.getElementById("syncStatus");
+      statusEl.textContent = "同期中...";
+      try {
+        const res = await fetch(GAS_FEED_URL);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        if (Array.isArray(json.shop) && json.shop.length) {
+          DEFAULT_DATA.shop = json.shop;
+          renderChecklist("view-shop", DEFAULT_DATA.shop);
+        }
+        if (Array.isArray(json.prep) && json.prep.length) {
+          DEFAULT_DATA.prep = json.prep;
+          renderChecklist("view-prep", DEFAULT_DATA.prep);
+        }
+        if (Array.isArray(json.recipes) && json.recipes.length) {
+          DEFAULT_DATA.recipes = json.recipes;
+          renderRecipes();
+        }
+        updateProgress();
+        statusEl.textContent = "GAS同期済み";
+      } catch (err) {
+        statusEl.textContent = "ローカル保存";
+      }
+    }
+
+    renderChecklist("view-shop", DEFAULT_DATA.shop);
+    renderChecklist("view-prep", DEFAULT_DATA.prep);
+    renderRecipes();
+    updateProgress();
+    fetchFromGasIfConfigured();
+  </script>
+</body>
+</html>
 
