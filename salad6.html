@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>6品サラダレシピ・買い出し＆段取りリスト</title>
+  <title>6品サラダ単独レシピ＆チェックリスト</title>
   <style>
     :root {
       --bg: #f4f7f4;
@@ -20,8 +20,8 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
       background: var(--bg);
       color: var(--ink);
-      line-height: 1.5;
-      padding: 14px;
+      line-height: 1.55;
+      padding: 12px;
     }
     .app {
       max-width: 640px;
@@ -32,7 +32,7 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px 14px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       position: sticky;
       top: 8px;
       z-index: 10;
@@ -48,9 +48,6 @@
       font-size: 15px;
       font-weight: 700;
       margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .btn {
       border: 1px solid var(--border);
@@ -62,10 +59,46 @@
       cursor: pointer;
       white-space: nowrap;
     }
-    .btn-primary {
+    .selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .salad-btn {
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      line-height: 1.35;
+    }
+    .salad-btn.active {
       background: var(--accent);
       color: #fff;
       border-color: var(--accent);
+    }
+    .current-banner {
+      background: var(--accent-soft);
+      border: 1px solid #c8e6c9;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .current-name {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0 0 2px 0;
+      color: var(--accent);
+    }
+    .current-desc {
+      font-size: 12px;
+      color: var(--ink);
+      margin: 0;
     }
     .progress-row {
       display: flex;
@@ -91,7 +124,7 @@
     .tabs {
       display: flex;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .tab {
       flex: 1;
@@ -114,7 +147,7 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px 14px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .section-title {
       font-size: 14px;
@@ -140,20 +173,22 @@
     .item-label { flex: 1; font-size: 14px; }
     .item-sub { display: block; font-size: 12px; color: var(--muted); }
     .done { text-decoration: line-through; color: var(--muted); }
-    .recipe-card {
-      border-top: 1px solid #eef3ef;
-      padding: 10px 0;
+    .step-list {
+      margin: 0;
+      padding-left: 20px;
     }
-    .recipe-card:first-child { border-top: none; }
-    .recipe-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-    .recipe-meta { font-size: 12px; color: var(--muted); }
-    .note {
-      font-size: 12px;
-      color: var(--muted);
-      background: var(--accent-soft);
-      padding: 8px 10px;
+    .step-list li {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .step-list li:last-child { margin-bottom: 0; }
+    .dressing-box {
+      background: #f9fbf9;
+      border: 1px solid var(--border);
       border-radius: 8px;
-      margin-bottom: 12px;
+      padding: 10px;
+      font-size: 13px;
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -161,116 +196,200 @@
   <div class="app">
     <div class="header">
       <div class="header-top">
-        <h1 class="title">🥗 6品サラダ・買い出し＆段取り</h1>
-        <button class="btn" id="resetBtn" type="button">全リセット</button>
+        <h1 class="title">🥗 6品サラダ（1品ずつ単独モード）</h1>
+        <button class="btn" id="resetBtn" type="button">この品をリセット</button>
       </div>
       <div class="progress-row">
         <span id="progressText">0 / 0 (0%)</span>
-        <span id="syncStatus">自動保存</span>
+        <span id="syncStatus">単独保存</span>
       </div>
       <div class="bar"><div class="bar-fill" id="progressBar"></div></div>
     </div>
 
+    <div class="selector" id="saladSelector"></div>
+
+    <div class="current-banner">
+      <h2 class="current-name" id="currentName"></h2>
+      <p class="current-desc" id="currentDesc"></p>
+    </div>
+
     <div class="tabs">
-      <button class="tab active" data-tab="shop" type="button">🛒 買い出し</button>
-      <button class="tab" data-tab="prep" type="button">⏱️ 当日の段取り</button>
-      <button class="tab" data-tab="recipes" type="button">📖 6品レシピ</button>
+      <button class="tab active" data-tab="recipe" type="button">📖 作り方・手順</button>
+      <button class="tab" data-tab="shop" type="button">🛒 材料・買い出し</button>
+      <button class="tab" data-tab="prep" type="button">⏱️ 段取り</button>
     </div>
 
-    <div class="note">
-      チェック状態はこの端末のブラウザに自動保存されます。GAS連携URL（<code>GAS_FEED_URL</code>）を設定するとスプレッドシートのデータも反映できます。
-    </div>
-
-    <div id="view-shop"></div>
+    <div id="view-recipe"></div>
+    <div id="view-shop" style="display:none;"></div>
     <div id="view-prep" style="display:none;"></div>
-    <div id="view-recipes" style="display:none;"></div>
   </div>
 
   <script>
-    // 必要に応じてGAS WebアプリのURLを設定してください（例: "https://script.google.com/macros/s/xxxxx/exec"）
     const GAS_FEED_URL = "";
-    const STORAGE_KEY = "salad6_checklist_v1";
+    const STORAGE_KEY = "salad6_single_v1";
 
-    const DEFAULT_DATA = {
-      shop: [
-        {
-          category: "🥬 葉物・生野菜",
-          items: [
-            { id: "s1", name: "サニーレタス / ロメインレタス（1〜2株）", sub: "使用：①グリーンサラダ／③シーザー風／⑥温野菜＆生野菜ボウル" },
-            { id: "s2", name: "ベビーリーフ（1パック）", sub: "使用：①グリーンサラダ／②サーモン＆アボカド" },
-            { id: "s3", name: "きゅうり（2本）", sub: "使用：①グリーンサラダ／④トマト＆きゅうりデリ風" },
-            { id: "s4", name: "ミニトマト（1パック）", sub: "使用：①グリーンサラダ／④トマト＆きゅうりデリ風" },
-            { id: "s5", name: "アボカド（1〜2個）", sub: "使用：②サーモン＆アボカド／⑤チキン＆豆サラダ" }
-          ]
-        },
-        {
-          category: "🥦 根菜・温野菜用",
-          items: [
-            { id: "s6", name: "ブロッコリー（1株）", sub: "使用：⑥温野菜＆生野菜ボウル" },
-            { id: "s7", name: "さつまいも または かぼちゃ（1/2個）", sub: "使用：⑥温野菜＆生野菜ボウル" },
-            { id: "s8", name: "紫玉ねぎ または 玉ねぎ（1/2個）", sub: "使用：②サーモン＆アボカド／④トマト＆きゅうりデリ風" }
-          ]
-        },
-        {
-          category: "🐟 具材・たんぱく質・乾物",
-          items: [
-            { id: "s9", name: "スモークサーモン または 刺身用サーモン（1パック）", sub: "使用：②サーモン＆アボカド" },
-            { id: "s10", name: "サラダチキン または 鶏むね肉（1枚）", sub: "使用：⑤チキン＆豆サラダ" },
-            { id: "s11", name: "ミックスビーンズ・コーン缶（各1缶）", sub: "使用：⑤チキン＆豆サラダ／③シーザー風" },
-            { id: "s12", name: "粉チーズ・クルトン・ゆで卵（適量）", sub: "使用：③シーザー風／⑥温野菜＆生野菜ボウル" }
-          ]
-        },
-        {
-          category: "🫙 調味料・ドレッシング素材",
-          items: [
-            { id: "s13", name: "オリーブオイル・レモン汁（または酢）", sub: "全6品のドレッシング・下味に共通使用" },
-            { id: "s14", name: "塩・黒こしょう・マヨネーズ・しょうゆ", sub: "全6品の味調整・ソース作りに使用" }
-          ]
-        }
-      ],
-      prep: [
-        {
-          category: "下ごしらえ（調理30〜40分前）",
-          items: [
-            { id: "p1", name: "葉物・きゅうり・トマトを洗い、しっかり水気を切る", sub: "水気が残るとドレッシングが薄まるためキッチンペーパー等で拭く" },
-            { id: "p2", name: "ブロッコリー・さつまいも/かぼちゃを一口大に切る", sub: "⑥の温野菜用に火が通りやすい大きさに揃える" },
-            { id: "p3", name: "ゆで卵を作る・サラダチキンをほぐす・豆とコーンの水気を切る", sub: "⑤・③・⑥の具材を小皿に分けておく" }
-          ]
-        },
-        {
-          category: "加熱＆ドレッシング準備（10〜15分前）",
-          items: [
-            { id: "p4", name: "温野菜を加熱して粗熱を取る", sub: "レンジまたは茹でたあと、水っぽくならないようザルで湯気を飛ばす" },
-            { id: "p5", name: "アボカド・サーモン・玉ねぎをカットする", sub: "変色しやすいアボカドは切る直前にレモン汁を軽く絡める" },
-            { id: "p6", name: "ドレッシングを混ぜ合わせる", sub: "柑橘系・オイル系・クリーミー系を分けて用意する" }
-          ]
-        },
-        {
-          category: "盛り付け直前（食べる直前）",
-          items: [
-            { id: "p7", name: "食べる直前にドレッシングを和える・かける", sub: "しんなりするのを防ぎ、シャキッと感をキープする" },
-            { id: "p8", name: "粉チーズ・クルトン・黒こしょうを仕上げに散らす", sub: "食感と香りのアクセントを最後にのせる" }
-          ]
-        }
-      ],
-      recipes: [
-        { name: "① シャキシャキ基本のグリーンサラダ", meta: "レタス・ベビーリーフ・きゅうり・ミニトマト／オリーブオイル＋レモン＋塩こしょう" },
-        { name: "② サーモンとアボカドのデリサラダ", meta: "サーモン・アボカド・玉ねぎ／わさびしょうゆまたはレモンオイル" },
-        { name: "③ 香ばしクルトンのシーザー風サラダ", meta: "ロメインレタス・クルトン・粉チーズ／マヨ＋チーズ＋レモン＋黒こしょう" },
-        { name: "④ トマトときゅうりのさっぱりマリネ風", meta: "ミニトマト・きゅうり・玉ねぎ／酢（またはレモン）＋オリーブオイル＋塩" },
-        { name: "⑤ チキンとミックスビーンズのたんぱくサラダ", meta: "サラダチキン・ミックスビーンズ・コーン／好みのドレッシングで食べ応え重視" },
-        { name: "⑥ 根菜とブロッコリーの温野菜サラダ", meta: "ブロッコリー・さつまいも/かぼちゃ・卵／温かいままオイル＆塩こしょう" }
-      ]
-    };
+    const SALADS = [
+      {
+        id: "s1",
+        shortLabel: "① 基本のグリーンサラダ",
+        name: "① シャキシャキ基本のグリーンサラダ",
+        desc: "単品でさっぱり食べられる基本の1品（約2人分）。他サラダと混ぜない単独レシピです。",
+        shop: [
+          { id: "m1", name: "サニーレタス または ロメインレタス（1/2株）", sub: "食べやすい大きさに手でちぎる" },
+          { id: "m2", name: "きゅうり（1本）", sub: "輪切りまたは斜め薄切り" },
+          { id: "m3", name: "ミニトマト（6〜8個）", sub: "ヘタを取って半分に切る" },
+          { id: "m4", name: "オリーブオイル・レモン汁（または酢）・塩・黒こしょう", sub: "ドレッシング用" }
+        ],
+        prep: [
+          { id: "p1", name: "葉物・きゅうり・トマトを洗って水気をしっかり切る", sub: "ザルにあげたあとキッチンペーパー等で水気を取る" },
+          { id: "p2", name: "ドレッシングをボウルまたは小皿で混ぜる", sub: "オリーブオイル大さじ2：レモン汁大さじ1：塩小さじ1/3：黒こしょう少々" },
+          { id: "p3", name: "食べる直前に和えて器に盛る", sub: "早めに和えると水が出るため直前がベスト" }
+        ],
+        steps: [
+          "サニーレタス（またはロメインレタス）を洗い、水気をしっかり切って食べやすい大きさにちぎります。",
+          "きゅうりは輪切りまたは薄切りに、ミニトマトはヘタを取って半分に切ります。",
+          "ボウルにオリーブオイル（大さじ2）、レモン汁（大さじ1）、塩（小さじ1/3）、黒こしょう（少々）を入れてよく混ぜます。",
+          "食べる直前に野菜とドレッシングをさっと和え、器に盛り付けます。"
+        ],
+        dressing: "基本のレモンドレッシング：オリーブオイル 大さじ2 ／ レモン汁 大さじ1 ／ 塩 小さじ1/3 ／ 黒こしょう 少々"
+      },
+      {
+        id: "s2",
+        shortLabel: "② サーモン＆アボカド",
+        name: "② サーモンとアボカドのデリサラダ",
+        desc: "濃厚なサーモンとアボカドを単独で楽しむ主役系サラダ（約2人分）。",
+        shop: [
+          { id: "m1", name: "スモークサーモン または 刺身用サーモン（80〜100g）", sub: "食べやすい大きさに切る" },
+          { id: "m2", name: "アボカド（1個）", sub: "一口大に切る" },
+          { id: "m3", name: "ベビーリーフ（1/2パック）または 玉ねぎ（1/4個）", sub: "玉ねぎを使う場合は薄切りにして水にさらす" },
+          { id: "m4", name: "しょうゆ・オリーブオイル・レモン汁・わさび（お好みで）", sub: "味付け用" }
+        ],
+        prep: [
+          { id: "p1", name: "玉ねぎを使う場合はスライスして水にさらし、水気を絞る", sub: "辛みを抜いてシャキッとさせる" },
+          { id: "p2", name: "アボカドとサーモンを一口大に切る", sub: "アボカドは変色防止にレモン汁を少し絡める" },
+          { id: "p3", name: "ソースを合わせておく", sub: "しょうゆ小さじ2＋オリーブオイル大さじ1＋レモン汁小さじ1" }
+        ],
+        steps: [
+          "ベビーリーフを洗って水気を切り、器に敷きます（玉ねぎを使う場合は薄切りにして水にさらし、水気をよく切ります）。",
+          "アボカドは種と皮を取り除いて一口大に切り、変色を防ぐためレモン汁（分量外・少々）を絡めます。",
+          "サーモンも食べやすい大きさに切ります。",
+          "しょうゆ（小さじ2）、オリーブオイル（大さじ1）、レモン汁（小さじ1）を混ぜ、具材に回しかけるか和えて盛り付けます（お好みでわさびを添えます）。"
+        ],
+        dressing: "和風レモンオイル：しょうゆ 小さじ2 ／ オリーブオイル 大さじ1 ／ レモン汁 小さじ1（お好みでわさび少々）"
+      },
+      {
+        id: "s3",
+        shortLabel: "③ シーザー風サラダ",
+        name: "③ 香ばしクルトンのシーザー風サラダ",
+        desc: "チーズとクルトンのコクを1品で味わう定番サラダ（約2人分）。",
+        shop: [
+          { id: "m1", name: "ロメインレタス（またはサニーレタス 1/2株）", sub: "一口大にちぎる" },
+          { id: "m2", name: "クルトン（適量・または食パン1/2枚を角切り）", sub: "仕上げに散らす" },
+          { id: "m3", name: "粉チーズ（大さじ2）", sub: "ドレッシング＆仕上げ用" },
+          { id: "m4", name: "マヨネーズ・レモン汁・牛乳（または水）・黒こしょう", sub: "シーザー風ソース用" }
+        ],
+        prep: [
+          { id: "p1", name: "レタスを洗い、しっかり水気を切ってちぎる", sub: "ソースが絡みやすいよう水気を切る" },
+          { id: "p2", name: "食パンを使う場合は角切りにしてフライパン等で乾煎りする", sub: "市販クルトンの場合はそのまま用意" },
+          { id: "p3", name: "シーザー風ソースを混ぜる", sub: "マヨネーズ大さじ2＋粉チーズ大さじ1.5＋レモン汁小さじ1＋牛乳小さじ1" }
+        ],
+        steps: [
+          "ロメインレタスを洗い、水気をしっかり切って食べやすい大きさにちぎります。",
+          "食パンから作る場合は角切りにし、少量のオイルで香ばしく焼いて冷まします（市販クルトンならそのまま用意）。",
+          "マヨネーズ（大さじ2）、粉チーズ（大さじ1.5）、レモン汁（小さじ1）、牛乳（小さじ1）を混ぜてソースを作ります。",
+          "レタスにソースを和えて盛り付け、残りの粉チーズ（大さじ1/2）、クルトン、黒こしょうを散らします。"
+        ],
+        dressing: "シーザー風ソース：マヨネーズ 大さじ2 ／ 粉チーズ 大さじ2 ／ レモン汁 小さじ1 ／ 牛乳 小さじ1 ／ 黒こしょう"
+      },
+      {
+        id: "s4",
+        shortLabel: "④ トマト＆きゅうりマリネ",
+        name: "④ トマトときゅうりのさっぱりマリネ風",
+        desc: "火を使わず作れる、単独でも副菜でも使いやすいさっぱり系1品（約2人分）。",
+        shop: [
+          { id: "m1", name: "ミニトマト（10個）または 大玉トマト（1個）", sub: "食べやすい大きさに切る" },
+          { id: "m2", name: "きゅうり（1〜2本）", sub: "乱切りまたは半月切り" },
+          { id: "m3", name: "玉ねぎ または 紫玉ねぎ（1/4個）", sub: "薄切りにする" },
+          { id: "m4", name: "酢（またはレモン汁）・オリーブオイル・塩・砂糖（少々）", sub: "マリネ液用" }
+        ],
+        prep: [
+          { id: "p1", name: "トマト・きゅうり・玉ねぎを切る", sub: "味がなじみやすい大きさに揃える" },
+          { id: "p2", name: "マリネ液を混ぜ合わせる", sub: "酢大さじ1.5＋オリーブオイル大さじ1.5＋塩小さじ1/3＋砂糖ひとつまみ" },
+          { id: "p3", name: "冷蔵庫で10〜15分ほど味をなじませる", sub: "作り置きしやすい単独メニュー" }
+        ],
+        steps: [
+          "ミニトマトは半分に、きゅうりは一口大の乱切りまたは薄切りにします。",
+          "玉ねぎは薄切りにし、辛みが気になる場合は水にさらしてから水気をよく絞ります。",
+          "ボウルに酢（大さじ1.5）、オリーブオイル（大さじ1.5）、塩（小さじ1/3）、砂糖（ひとつまみ）を入れて混ぜます。",
+          "野菜を加えて和え、冷蔵庫で10〜15分ほどなじませてから器に盛ります。"
+        ],
+        dressing: "さっぱりマリネ液：酢（またはレモン汁） 大さじ1.5 ／ オリーブオイル 大さじ1.5 ／ 塩 小さじ1/3 ／ 砂糖 少々"
+      },
+      {
+        id: "s5",
+        shortLabel: "⑤ チキン＆豆サラダ",
+        name: "⑤ チキンとミックスビーンズのたんぱくサラダ",
+        desc: "鶏肉と豆で満足感を出せる、単独で食事になる食べ応え系1品（約2人分）。",
+        shop: [
+          { id: "m1", name: "サラダチキン（1パック）または 鶏むね肉（1/2枚）", sub: "ほぐすか一口大に切る" },
+          { id: "m2", name: "ミックスビーンズ（1/2缶〜1缶）", sub: "汁気を切って洗う" },
+          { id: "m3", name: "コーン缶（大さじ3〜4）", sub: "水気を切る" },
+          { id: "m4", name: "好みのドレッシング または マヨネーズ＋しょうゆ＋レモン汁", sub: "味付け用" }
+        ],
+        prep: [
+          { id: "p1", name: "ミックスビーンズとコーンの水気を切る", sub: "豆はサッと水洗いして水気を切るとくせが抜ける" },
+          { id: "p2", name: "サラダチキンを食べやすい大きさにほぐす・切る", sub: "鶏むね肉を使う場合は加熱して粗熱を取ってからほぐす" },
+          { id: "p3", name: "ソースまたはドレッシングを用意する", sub: "マヨネーズ大さじ1.5＋レモン汁小さじ1＋しょうゆ小さじ1/2（または市販ドレッシング）" }
+        ],
+        steps: [
+          "ミックスビーンズとコーンは水気を切ります（豆は軽く水洗いしてから水を切ると食べやすくなります）。",
+          "サラダチキンは手で食べやすい大きさにほぐすか、一口大に切ります。",
+          "ボウルに豆・コーン・チキンを入れ、好みのドレッシングまたは調味料で和えます。",
+          "器に盛り、お好みで黒こしょうやパセリ（あれば）を散らします。"
+        ],
+        dressing: "食べ応えソース例：マヨネーズ 大さじ1.5 ／ レモン汁 小さじ1 ／ しょうゆ 小さじ1/2（またはお好みのドレッシング）"
+      },
+      {
+        id: "s6",
+        shortLabel: "⑥ 根菜＆ブロッコリー温野菜",
+        name: "⑥ 根菜とブロッコリーの温野菜サラダ",
+        desc: "温かい野菜を1品でしっかり味わう温サラダ（約2人分）。",
+        shop: [
+          { id: "m1", name: "ブロッコリー（1/2株）", sub: "小房に分ける" },
+          { id: "m2", name: "さつまいも または かぼちゃ（1/4個・約120g）", sub: "一口大に切る" },
+          { id: "m3", name: "ゆで卵（1〜2個・お好みで）", sub: "くし切りまたは刻む" },
+          { id: "m4", name: "オリーブオイル・塩・黒こしょう（またはポン酢・ごま油）", sub: "仕上げの味付け用" }
+        ],
+        prep: [
+          { id: "p1", name: "ブロッコリーとさつまいも/かぼちゃを一口大に切る", sub: "火の通りに差が出ないよう大きさを揃える" },
+          { id: "p2", name: "耐熱容器に入れてラップをし、電子レンジ（600W）で3〜4分加熱する", sub: "竹串がスッと通るまで加熱し、水気があれば切る" },
+          { id: "p3", name: "温かいまま味付けして盛り付ける", sub: "冷める前にオイルと塩を絡めると味がなじみやすい" }
+        ],
+        steps: [
+          "ブロッコリーは小房に分け、さつまいも（またはかぼちゃ）は一口大に切って水にくぐらせます。",
+          "耐熱皿に並べてラップをかけ、電子レンジ（600W）で3〜4分、野菜が柔らかくなるまで加熱します（茹でてもOKです）。",
+          "加熱ムラがある場合は追加で30秒ずつ加熱し、余分な水気があれば軽く切ります。",
+          "熱いうちにオリーブオイル（大さじ1）と塩（小さじ1/4）を絡め、お好みでゆで卵と黒こしょうを添えます。"
+        ],
+        dressing: "温野菜の基本味付け：オリーブオイル 大さじ1 ／ 塩 小さじ1/4 ／ 黒こしょう 少々（ポン酢やごま油でも合います）"
+      }
+    ];
 
     let state = loadState();
 
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) return JSON.parse(raw);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return {
+            selectedId: parsed.selectedId || "s1",
+            tab: parsed.tab || "recipe",
+            checked: parsed.checked || {}
+          };
+        }
       } catch (e) {}
-      return { checked: {} };
+      return { selectedId: "s1", tab: "recipe", checked: {} };
     }
 
     function saveState() {
@@ -279,33 +398,73 @@
       } catch (e) {}
     }
 
-    function getAllCheckableIds() {
-      const ids = [];
-      for (const group of [...DEFAULT_DATA.shop, ...DEFAULT_DATA.prep]) {
-        for (const item of group.items) ids.push(item.id);
-      }
-      return ids;
+    function getCurrentSalad() {
+      return SALADS.find(s => s.id === state.selectedId) || SALADS[0];
+    }
+
+    function getCurrentItemIds(salad) {
+      return [...salad.shop, ...salad.prep].map(item => `${salad.id}_${item.id}`);
     }
 
     function updateProgress() {
-      const ids = getAllCheckableIds();
+      const salad = getCurrentSalad();
+      const ids = getCurrentItemIds(salad);
       const total = ids.length;
-      const done = ids.filter(id => !!state.checked[id]).length;
+      const done = ids.filter(fullId => !!state.checked[fullId]).length;
       const pct = total ? Math.round((done / total) * 100) : 0;
-      document.getElementById("progressText").textContent = `${done} / ${total} (${pct}%)`;
+      document.getElementById("progressText").textContent = `${salad.shortLabel}：${done} / ${total} (${pct}%)`;
       document.getElementById("progressBar").style.width = `${pct}%`;
     }
 
-    function renderChecklist(containerId, groups) {
-      const el = document.getElementById(containerId);
-      el.innerHTML = groups.map(group => `
+    function renderSelector() {
+      const el = document.getElementById("saladSelector");
+      el.innerHTML = SALADS.map(s => `
+        <button class="salad-btn ${s.id === state.selectedId ? "active" : ""}" data-id="${s.id}" type="button">
+          ${s.shortLabel}
+        </button>
+      `).join("");
+
+      el.querySelectorAll(".salad-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.selectedId = btn.getAttribute("data-id");
+          saveState();
+          renderAll();
+        });
+      });
+    }
+
+    function renderBanner(salad) {
+      document.getElementById("currentName").textContent = salad.name;
+      document.getElementById("currentDesc").textContent = salad.desc;
+    }
+
+    function renderRecipe(salad) {
+      const el = document.getElementById("view-recipe");
+      el.innerHTML = `
         <div class="section">
-          <h2 class="section-title">${group.category}</h2>
-          ${group.items.map(item => {
-            const checked = !!state.checked[item.id];
+          <h3 class="section-title">作り方手順（${salad.shortLabel} 単独）</h3>
+          <ol class="step-list">
+            ${salad.steps.map(st => `<li>${st}</li>`).join("")}
+          </ol>
+          <div class="dressing-box">
+            <strong>味付け・ドレッシング目安：</strong><br />
+            ${salad.dressing}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCheckList(containerId, title, items, salad) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = `
+        <div class="section">
+          <h3 class="section-title">${title}（${salad.shortLabel}）</h3>
+          ${items.map(item => {
+            const fullId = `${salad.id}_${item.id}`;
+            const checked = !!state.checked[fullId];
             return `
               <label class="item">
-                <input type="checkbox" data-id="${item.id}" ${checked ? "checked" : ""} />
+                <input type="checkbox" data-full-id="${fullId}" ${checked ? "checked" : ""} />
                 <span class="item-label ${checked ? "done" : ""}">
                   ${item.name}
                   ${item.sub ? `<span class="item-sub">${item.sub}</span>` : ""}
@@ -314,12 +473,12 @@
             `;
           }).join("")}
         </div>
-      `).join("");
+      `;
 
       el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         cb.addEventListener("change", () => {
-          const id = cb.getAttribute("data-id");
-          state.checked[id] = cb.checked;
+          const fullId = cb.getAttribute("data-full-id");
+          state.checked[fullId] = cb.checked;
           saveState();
           const label = cb.nextElementSibling;
           if (label) label.classList.toggle("done", cb.checked);
@@ -328,75 +487,46 @@
       });
     }
 
-    function renderRecipes() {
-      const el = document.getElementById("view-recipes");
-      el.innerHTML = `
-        <div class="section">
-          <h2 class="section-title">6品サラダ一覧</h2>
-          ${DEFAULT_DATA.recipes.map(r => `
-            <div class="recipe-card">
-              <div class="recipe-name">${r.name}</div>
-              <div class="recipe-meta">${r.meta}</div>
-            </div>
-          `).join("")}
-        </div>
-      `;
+    function applyTab() {
+      document.querySelectorAll(".tab").forEach(t => {
+        t.classList.toggle("active", t.getAttribute("data-tab") === state.tab);
+      });
+      document.getElementById("view-recipe").style.display = state.tab === "recipe" ? "" : "none";
+      document.getElementById("view-shop").style.display = state.tab === "shop" ? "" : "none";
+      document.getElementById("view-prep").style.display = state.tab === "prep" ? "" : "none";
+    }
+
+    function renderAll() {
+      const salad = getCurrentSalad();
+      renderSelector();
+      renderBanner(salad);
+      renderRecipe(salad);
+      renderCheckList("view-shop", "この1品に必要な材料・買い出し", salad.shop, salad);
+      renderCheckList("view-prep", "この1品を作るときの段取り", salad.prep, salad);
+      applyTab();
+      updateProgress();
     }
 
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        tab.classList.add("active");
-        const target = tab.getAttribute("data-tab");
-        document.getElementById("view-shop").style.display = target === "shop" ? "" : "none";
-        document.getElementById("view-prep").style.display = target === "prep" ? "" : "none";
-        document.getElementById("view-recipes").style.display = target === "recipes" ? "" : "none";
+        state.tab = tab.getAttribute("data-tab");
+        saveState();
+        applyTab();
       });
     });
 
     document.getElementById("resetBtn").addEventListener("click", () => {
-      if (confirm("すべてのチェックをリセットしますか？")) {
-        state.checked = {};
+      const salad = getCurrentSalad();
+      if (confirm(`${salad.shortLabel} のチェックだけをリセットしますか？`)) {
+        for (const fullId of getCurrentItemIds(salad)) {
+          delete state.checked[fullId];
+        }
         saveState();
-        renderChecklist("view-shop", DEFAULT_DATA.shop);
-        renderChecklist("view-prep", DEFAULT_DATA.prep);
-        updateProgress();
+        renderAll();
       }
     });
 
-    async function fetchFromGasIfConfigured() {
-      if (!GAS_FEED_URL) return;
-      const statusEl = document.getElementById("syncStatus");
-      statusEl.textContent = "同期中...";
-      try {
-        const res = await fetch(GAS_FEED_URL);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const json = await res.json();
-        if (Array.isArray(json.shop) && json.shop.length) {
-          DEFAULT_DATA.shop = json.shop;
-          renderChecklist("view-shop", DEFAULT_DATA.shop);
-        }
-        if (Array.isArray(json.prep) && json.prep.length) {
-          DEFAULT_DATA.prep = json.prep;
-          renderChecklist("view-prep", DEFAULT_DATA.prep);
-        }
-        if (Array.isArray(json.recipes) && json.recipes.length) {
-          DEFAULT_DATA.recipes = json.recipes;
-          renderRecipes();
-        }
-        updateProgress();
-        statusEl.textContent = "GAS同期済み";
-      } catch (err) {
-        statusEl.textContent = "ローカル保存";
-      }
-    }
-
-    renderChecklist("view-shop", DEFAULT_DATA.shop);
-    renderChecklist("view-prep", DEFAULT_DATA.prep);
-    renderRecipes();
-    updateProgress();
-    fetchFromGasIfConfigured();
+    renderAll();
   </script>
 </body>
 </html>
-
