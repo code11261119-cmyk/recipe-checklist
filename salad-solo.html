@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>サラダ6品・単独レシピ＆チェックリスト</title>
+  <title>サラダ6品・単独レシピ＆統合買い出しリスト</title>
   <style>
     :root {
       --bg: #f4f7f4;
@@ -59,6 +59,27 @@
       font-size: 12px;
       cursor: pointer;
       white-space: nowrap;
+    }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 9px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
     }
     .selector {
       display: grid;
@@ -132,27 +153,6 @@
       background: var(--accent);
       transition: width 0.2s ease;
     }
-    .tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 8px 6px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .tab.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
     .section {
       background: var(--card);
       border: 1px solid var(--border);
@@ -170,7 +170,7 @@
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      padding: 8px 0;
+      padding: 9px 0;
       border-top: 1px solid #eef3ef;
     }
     .check-item:first-of-type { border-top: none; }
@@ -182,7 +182,22 @@
       flex-shrink: 0;
     }
     .item-label { flex: 1; font-size: 14px; }
-    .item-sub { display: block; font-size: 12px; color: var(--muted); }
+    .item-sub { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .tag {
+      font-size: 11px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #c8e6c9;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
     .done { text-decoration: line-through; color: var(--muted); }
     .step-list {
       margin: 0;
@@ -207,37 +222,77 @@
   <div class="app">
     <div class="header">
       <div class="header-top">
-        <h1 class="title">🥗 サラダ6品（1品ずつ単独モード）</h1>
-        <button class="btn" id="resetBtn" type="button">この品をリセット</button>
+        <h1 class="title">🥗 サラダ6品（手順単独／買い出し統合）</h1>
+        <button class="btn" id="resetBtn" type="button">リセット</button>
       </div>
       <div class="progress-row">
         <span id="progressText">0 / 0 (0%)</span>
-        <span id="syncStatus">単独保存</span>
+        <span id="syncStatus">自動保存</span>
       </div>
       <div class="bar"><div class="bar-fill" id="progressBar"></div></div>
     </div>
 
-    <div class="selector" id="recipeSelector"></div>
-
-    <div class="current-banner">
-      <h2 class="current-name" id="currentName"></h2>
-      <p class="current-desc" id="currentDesc"></p>
-      <a class="yt-btn" id="ytLink" href="#" target="_blank" rel="noopener">▶ YouTube動画を見る</a>
-    </div>
-
     <div class="tabs">
       <button class="tab active" data-tab="recipe" type="button">📖 作り方・手順</button>
-      <button class="tab" data-tab="shop" type="button">🛒 材料・買い出し</button>
       <button class="tab" data-tab="prep" type="button">⏱️ 段取り</button>
+      <button class="tab" data-tab="shop" type="button">🛒 買い出し（全品統合）</button>
+    </div>
+
+    <div id="solo-controls">
+      <div class="selector" id="recipeSelector"></div>
+
+      <div class="current-banner">
+        <h2 class="current-name" id="currentName"></h2>
+        <p class="current-desc" id="currentDesc"></p>
+        <a class="yt-btn" id="ytLink" href="#" target="_blank" rel="noopener">▶ YouTube動画を見る</a>
+      </div>
     </div>
 
     <div id="view-recipe"></div>
-    <div id="view-shop" style="display:none;"></div>
     <div id="view-prep" style="display:none;"></div>
+    <div id="view-shop" style="display:none;"></div>
   </div>
 
   <script>
-    const STORAGE_KEY = "salad6_yt_solo_v1";
+    const STORAGE_KEY = "salad6_unified_shop_v1";
+
+    const SHOPPING_CATEGORIES = [
+      {
+        title: "🥩 肉・魚介・卵・大豆製品",
+        items: [
+          { id: "s1", name: "鶏ささみ（または鶏むね肉）", sub: "レンジ加熱・ソテー用", tags: ["①最強ダイエット", "②水菜とろたま", "③チョップド"] },
+          { id: "s2", name: "冷凍海老（8個位〜）", sub: "酒・塩でレンジ加熱してプリッと仕上げる", tags: ["⑥海老アボ"] },
+          { id: "s3", name: "卵", sub: "ゆで卵・半熟卵・とろたま用", tags: ["①最強ダイエット", "②水菜とろたま", "③チョップド", "④麻辣湯", "⑥海老アボ"] },
+          { id: "s4", name: "絹ごし豆腐", sub: "麻辣湯風ソースのベース用", tags: ["④麻辣湯"] }
+        ]
+      },
+      {
+        title: "🥬 野菜・きのこ・果物",
+        items: [
+          { id: "s5", name: "ブロッコリー", sub: "小房に分けてレンジ加熱", tags: ["①最強ダイエット"] },
+          { id: "s6", name: "水菜", sub: "キッチンバサミでカットして使用", tags: ["②水菜とろたま"] },
+          { id: "s7", name: "レタス（フリルレタス・サニーレタス・ベビーリーフ等）", sub: "チョップド＆敷き野菜用", tags: ["③チョップド", "⑤レンコン舞茸"] },
+          { id: "s8", name: "ミニトマト", sub: "彩り＆さっぱり感用", tags: ["③チョップド"] },
+          { id: "s9", name: "にんじん", sub: "ピーラー等で薄切り・細切りにする", tags: ["④麻辣湯"] },
+          { id: "s10", name: "舞茸", sub: "強火で押し焼きにして香ばしく", tags: ["⑤レンコン舞茸"] },
+          { id: "s11", name: "レンコン", sub: "ソテーしてバター醤油＆レモン絡め", tags: ["⑤レンコン舞茸"] },
+          { id: "s12", name: "アボカド（1個〜）", sub: "一口大にカット", tags: ["⑥海老アボ"] },
+          { id: "s13", name: "青菜・きくらげ・ハーブ類（お好みで）", sub: "トッピング・仕上げ用", tags: ["④麻辣湯", "⑤レンコン舞茸"] }
+        ]
+      },
+      {
+        title: "🧂 調味料・乾物・乳製品",
+        items: [
+          { id: "s14", name: "醤油・料理酒・みりん・酢・砂糖", sub: "各サラダのタレ・下処理用（共通基本調味料）", tags: ["①最強ダイエット", "②水菜とろたま", "⑤レンコン舞茸", "⑥海老アボ"] },
+          { id: "s15", name: "ごま油・炒りごま（またはすりごま）", sub: "ナムル・甘辛ごま酢ダレ用", tags: ["①最強ダイエット", "②水菜とろたま", "⑥海老アボ"] },
+          { id: "s16", name: "にんにく（チューブ可）・黒こしょう・塩", sub: "風味付け＆下味用", tags: ["①最強ダイエット", "④麻辣湯", "⑤レンコン舞茸", "⑥海老アボ"] },
+          { id: "s17", name: "オリーブオイル・レモン汁", sub: "ドレッシング＆ソテー仕上げ用", tags: ["③チョップド", "⑤レンコン舞茸"] },
+          { id: "s18", name: "豆乳（少量）・豆板醤・鶏ガラスープの素・糸唐辛子", sub: "麻辣湯風ソース＆トッピング用", tags: ["④麻辣湯"] },
+          { id: "s19", name: "バター・粉チーズ（お好みで）", sub: "舞茸レンコンのソテー＆仕上げ用", tags: ["⑤レンコン舞茸"] },
+          { id: "s20", name: "ミックスナッツ（お好みで）", sub: "食感アクセント用", tags: ["③チョップド"] }
+        ]
+      }
+    ];
 
     const RECIPES = [
       {
@@ -246,12 +301,6 @@
         name: "① 最強ダイエットサラダ（ささみ・ブロッコリー・ゆで卵）",
         desc: "かなやん〔Kana〕の動画レシピ。レンジ加熱とごま醤油にんにくダレで手軽に作れる1品。",
         ytUrl: "https://www.youtube.com/watch?v=ZY8VmYQMVQ0",
-        shop: [
-          { id: "m1", name: "鶏ささみ", sub: "耐熱皿に並べてフォークで刺し、料理酒＋ふんわりラップで600W 3分加熱" },
-          { id: "m2", name: "ブロッコリー", sub: "小房に分けて洗い、ふんわりラップで600W 2分加熱" },
-          { id: "m3", name: "ゆで卵", sub: "食べやすい大きさに切る" },
-          { id: "m4", name: "醤油・みりん・酢・砂糖・白ごま・にんにく・こしょう", sub: "タレ＆仕上げ用" }
-        ],
         prep: [
           { id: "p1", name: "ささみを耐熱皿に並べてフォークで刺し、料理酒をかけて600Wで3分加熱する", sub: "粗熱が取れたらほぐす" },
           { id: "p2", name: "ブロッコリーを小房に切って洗い、600Wで2分加熱する", sub: "水気を切って用意" },
@@ -271,12 +320,6 @@
         name: "② 水菜とろたまサラダ",
         desc: "ゆい | 誰でもできる簡単痩せレシピの動画より。包丁・鍋いらずの時短サラダ。",
         ytUrl: "https://www.youtube.com/watch?v=UXDjZ2Z39WA",
-        shop: [
-          { id: "m1", name: "鶏ささみ", sub: "耐熱容器に入れてレンジ加熱し、ほぐす" },
-          { id: "m2", name: "水菜", sub: "洗って水気を切り、キッチンバサミでカット" },
-          { id: "m3", name: "卵（とろたま／半熟卵・温泉卵など）", sub: "仕上げに絡める" },
-          { id: "m4", name: "醤油・酢/オイル・ごま・砂糖/調味料など好みのタレ素材", sub: "ドレッシング用" }
-        ],
         prep: [
           { id: "p1", name: "ささみを耐熱容器に入れてレンジ加熱し、ほぐしておく", sub: "茹でずにレンジで時短" },
           { id: "p2", name: "水菜を洗い、水気を切ってハサミでカットする", sub: "ボウルに入れる" },
@@ -296,13 +339,6 @@
         name: "③ 超簡単ヘルシーチョップドサラダ",
         desc: "めこの動画より。野菜・たんぱく質・ナッツなどを細かく刻んで一体感を出すサラダ。",
         ytUrl: "https://www.youtube.com/watch?v=a95f2KiPSA8",
-        shop: [
-          { id: "m1", name: "レタス（フリルレタス等）", sub: "洗って水気を切る" },
-          { id: "m2", name: "ミニトマト", sub: "洗って用意" },
-          { id: "m3", name: "鶏ささみ / 鶏むね肉", sub: "焼くまたは加熱して食べやすくする" },
-          { id: "m4", name: "卵", sub: "ゆで卵にして殻をむく" },
-          { id: "m5", name: "ミックスナッツ / 種実類・オリーブオイル・ハーブ/調味料", sub: "食感＆ドレッシング用" }
-        ],
         prep: [
           { id: "p1", name: "ゆで卵を作り、鶏肉に火を通しておく", sub: "粗熱を取っておく" },
           { id: "p2", name: "オリーブオイルと調味料でドレッシングを作る", sub: "混ぜ合わせておく" },
@@ -322,12 +358,6 @@
         name: "④ ヘルシー麻辣湯サラダ",
         desc: "Rika | 365日自分を磨くサラダ習慣の動画より。豆腐とにんじんを使った麻辣湯風サラダ。",
         ytUrl: "https://www.youtube.com/watch?v=ZM0aLYUzRxI",
-        shop: [
-          { id: "m1", name: "絹ごし豆腐", sub: "水気を切ってベースに使う" },
-          { id: "m2", name: "にんじん", sub: "ピーラー等で薄切り・細切りにする" },
-          { id: "m3", name: "豆乳（少し）・豆板醤・鶏ガラスープの素・にんにくチューブ", sub: "麻辣湯風ソース用" },
-          { id: "m4", name: "ゆで卵・青菜・きくらげ・糸唐辛子などお好みの具材", sub: "トッピング用" }
-        ],
         prep: [
           { id: "p1", name: "にんじんをピーラー等で薄くスライスする", sub: "器に並べる" },
           { id: "p2", name: "絹ごし豆腐・豆乳・豆板醤・鶏ガラスープの素・にんにくを混ぜる", sub: "レンジ加熱や混ぜ合わせでソース状にする" },
@@ -346,12 +376,6 @@
         name: "⑤ 焼きレンコンと舞茸のバター醤油サラダ",
         desc: "えい | おうち本格イタリアンの動画より。香ばしく焼いた舞茸とレンコンにレモンを効かせた一皿。",
         ytUrl: "https://www.youtube.com/watch?v=GcLPR35X8eU",
-        shop: [
-          { id: "m1", name: "舞茸", sub: "石づきを整え、強火で焼き目をつけてほぐす" },
-          { id: "m2", name: "レンコン", sub: "輪切りまたは半月切りにしてソテー" },
-          { id: "m3", name: "サニーレタス・ベビーリーフ・ハーブ/香味野菜など生野菜", sub: "お皿の土台＆仕上げ用" },
-          { id: "m4", name: "バター・醤油・レモン汁・油・塩こしょう・粉チーズ等", sub: "ソテー＆味付け用" }
-        ],
         prep: [
           { id: "p1", name: "生野菜を洗って水気を切り、皿に敷いておく", sub: "水気をよく切る" },
           { id: "p2", name: "舞茸を油を引いたフライパンで強火で押さえながら焼き目をつけ、ほぐす", sub: "香ばしく焼き上げる" },
@@ -371,12 +395,6 @@
         name: "⑥ どハマり海老アボサラダ",
         desc: "まみ(mami) ラクうまごはんの動画より。プリッと仕上げた海老とアボカド、半熟卵の甘辛ごま酢ダレ。",
         ytUrl: "https://www.youtube.com/watch?v=EkDB_zfxvJ8",
-        shop: [
-          { id: "m1", name: "冷凍海老（8個位）", sub: "塩小さじ1/3・酒大さじ1・たっぷりの水でラップなし600W 3〜4分加熱" },
-          { id: "m2", name: "アボカド（1個）", sub: "種と皮を取り、一口大に切る" },
-          { id: "m3", name: "半熟卵（2個）", sub: "和えるときに食べやすく切る" },
-          { id: "m4", name: "酢（大さじ1）・醤油（大さじ1）・砂糖（大さじ1）・ごま油（小さじ1）・炒りごま（小さじ1）", sub: "タレ用" }
-        ],
         prep: [
           { id: "p1", name: "冷凍海老に塩小さじ1/3・酒大さじ1・たっぷりの水を加え、ラップなしで600W 3〜4分加熱する", sub: "加熱後は水気を切る" },
           { id: "p2", name: "酢・醤油・砂糖各大さじ1、ごま油・ごま各小さじ1を混ぜてタレを作る", sub: "よく混ぜ合わせる" },
@@ -419,18 +437,39 @@
       return RECIPES.find(r => r.id === state.selectedId) || RECIPES[0];
     }
 
-    function getCurrentItemIds(recipe) {
-      return [...recipe.shop, ...recipe.prep].map(item => `${recipe.id}_${item.id}`);
+    function getAllShopIds() {
+      const ids = [];
+      for (const cat of SHOPPING_CATEGORIES) {
+        for (const item of cat.items) {
+          ids.push(`shop_${item.id}`);
+        }
+      }
+      return ids;
+    }
+
+    function getCurrentPrepIds(recipe) {
+      return recipe.prep.map(item => `${recipe.id}_${item.id}`);
     }
 
     function updateProgress() {
-      const recipe = getCurrentRecipe();
-      const ids = getCurrentItemIds(recipe);
-      const total = ids.length;
-      const done = ids.filter(fullId => !!state.checked[fullId]).length;
-      const pct = total ? Math.round((done / total) * 100) : 0;
-      document.getElementById("progressText").textContent = `${recipe.shortLabel}：${done} / ${total} (${pct}%)`;
-      document.getElementById("progressBar").style.width = `${pct}%`;
+      if (state.tab === "shop") {
+        const ids = getAllShopIds();
+        const total = ids.length;
+        const done = ids.filter(id => !!state.checked[id]).length;
+        const pct = total ? Math.round((done / total) * 100) : 0;
+        document.getElementById("progressText").textContent = `買い出し全体：${done} / ${total} (${pct}%)`;
+        document.getElementById("progressBar").style.width = `${pct}%`;
+        document.getElementById("resetBtn").textContent = "買い出しをリセット";
+      } else {
+        const recipe = getCurrentRecipe();
+        const ids = getCurrentPrepIds(recipe);
+        const total = ids.length;
+        const done = ids.filter(id => !!state.checked[id]).length;
+        const pct = total ? Math.round((done / total) * 100) : 0;
+        document.getElementById("progressText").textContent = `${recipe.shortLabel} 段取り：${done} / ${total} (${pct}%)`;
+        document.getElementById("progressBar").style.width = `${pct}%`;
+        document.getElementById("resetBtn").textContent = "この品の段取りをリセット";
+      }
     }
 
     function renderSelector() {
@@ -475,12 +514,12 @@
       `;
     }
 
-    function renderCheckList(containerId, title, items, recipe) {
-      const el = document.getElementById(containerId);
+    function renderPrep(recipe) {
+      const el = document.getElementById("view-prep");
       el.innerHTML = `
         <div class="section">
-          <h3 class="section-title">${title}（${recipe.shortLabel}）</h3>
-          ${items.map(item => {
+          <h3 class="section-title">この1品を作るときの段取り（${recipe.shortLabel}）</h3>
+          ${recipe.prep.map(item => {
             const fullId = `${recipe.id}_${item.id}`;
             const checked = !!state.checked[fullId];
             return `
@@ -508,13 +547,51 @@
       });
     }
 
+    function renderShop() {
+      const el = document.getElementById("view-shop");
+      el.innerHTML = SHOPPING_CATEGORIES.map(cat => `
+        <div class="section">
+          <h3 class="section-title">${cat.title}</h3>
+          ${cat.items.map(item => {
+            const fullId = `shop_${item.id}`;
+            const checked = !!state.checked[fullId];
+            const tagsHtml = (item.tags || []).map(t => `<span class="tag">${t}</span>`).join("");
+            return `
+              <label class="check-item">
+                <input type="checkbox" data-full-id="${fullId}" ${checked ? "checked" : ""} />
+                <span class="item-label ${checked ? "done" : ""}">
+                  ${item.name}
+                  ${item.sub ? `<span class="item-sub">${item.sub}</span>` : ""}
+                  ${tagsHtml ? `<div class="tags">${tagsHtml}</div>` : ""}
+                </span>
+              </label>
+            `;
+          }).join("")}
+        </div>
+      `).join("");
+
+      el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener("change", () => {
+          const fullId = cb.getAttribute("data-full-id");
+          state.checked[fullId] = cb.checked;
+          saveState();
+          const label = cb.nextElementSibling;
+          if (label) label.classList.toggle("done", cb.checked);
+          updateProgress();
+        });
+      });
+    }
+
     function applyTab() {
       document.querySelectorAll(".tab").forEach(t => {
         t.classList.toggle("active", t.getAttribute("data-tab") === state.tab);
       });
+      const isShop = state.tab === "shop";
+      document.getElementById("solo-controls").style.display = isShop ? "none" : "";
       document.getElementById("view-recipe").style.display = state.tab === "recipe" ? "" : "none";
-      document.getElementById("view-shop").style.display = state.tab === "shop" ? "" : "none";
       document.getElementById("view-prep").style.display = state.tab === "prep" ? "" : "none";
+      document.getElementById("view-shop").style.display = isShop ? "" : "none";
+      updateProgress();
     }
 
     function renderAll() {
@@ -522,10 +599,9 @@
       renderSelector();
       renderBanner(recipe);
       renderRecipe(recipe);
-      renderCheckList("view-shop", "この1品に必要な材料・買い出し", recipe.shop, recipe);
-      renderCheckList("view-prep", "この1品を作るときの段取り", recipe.prep, recipe);
+      renderPrep(recipe);
+      renderShop();
       applyTab();
-      updateProgress();
     }
 
     document.querySelectorAll(".tab").forEach(tab => {
@@ -537,13 +613,23 @@
     });
 
     document.getElementById("resetBtn").addEventListener("click", () => {
-      const recipe = getCurrentRecipe();
-      if (confirm(`${recipe.shortLabel} のチェックだけをリセットしますか？`)) {
-        for (const fullId of getCurrentItemIds(recipe)) {
-          delete state.checked[fullId];
+      if (state.tab === "shop") {
+        if (confirm("買い出しリストのチェックをすべてリセットしますか？")) {
+          for (const id of getAllShopIds()) {
+            delete state.checked[id];
+          }
+          saveState();
+          renderAll();
         }
-        saveState();
-        renderAll();
+      } else {
+        const recipe = getCurrentRecipe();
+        if (confirm(`${recipe.shortLabel} の段取りチェックだけをリセットしますか？`)) {
+          for (const id of getCurrentPrepIds(recipe)) {
+            delete state.checked[id];
+          }
+          saveState();
+          renderAll();
+        }
       }
     });
 
